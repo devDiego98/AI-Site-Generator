@@ -1,0 +1,14 @@
+/* Aurora — layout styles for reactbits.dev full-viewport backgrounds */
+.aurora-container,
+.aurora-container canvas {
+  width: 100%;
+  height: 100%;
+}
+.aurora-container {
+  position: relative;
+  overflow: hidden;
+  min-height: 100%;
+}
+.aurora-container canvas {
+  display: block;
+}

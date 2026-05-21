@@ -1,0 +1,32 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-bg-code);
+  border-bottom: 1px solid var(--palette-neutral-200);
+}
+
+.pre {
+  margin: 0;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--space-5);
+  background: var(--color-bg-code);
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-code);
+  white-space: pre-wrap;
+  word-break: break-word;
+}

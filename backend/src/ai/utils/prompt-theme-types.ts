@@ -1,0 +1,18 @@
+export type PromptTheme =
+  | 'telecom'
+  | 'ai'
+  | 'saas'
+  | 'finance'
+  | 'wellness'
+  | 'creative'
+  | 'gaming'
+  | 'space'
+  | 'security'
+  | 'events'
+  | 'education'
+  | 'healthcare'
+  | 'luxury'
+  | 'retail'
+  | 'eco'
+  | 'music'
+  | 'generic';

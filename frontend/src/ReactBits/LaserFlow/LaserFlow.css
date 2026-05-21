@@ -1,0 +1,11 @@
+/* LaserFlow — layout styles for reactbits.dev full-viewport backgrounds */
+.laser-flow-container,
+.laser-flow-container canvas {
+  width: 100%;
+  height: 100%;
+}
+.laser-flow-container {
+  position: relative;
+  overflow: hidden;
+  min-height: 100%;
+}

@@ -1,0 +1,11 @@
+/* Plasma — layout styles for reactbits.dev full-viewport backgrounds */
+.plasma-container,
+.plasma-container canvas {
+  width: 100%;
+  height: 100%;
+}
+.plasma-container {
+  position: relative;
+  overflow: hidden;
+  min-height: 100%;
+}

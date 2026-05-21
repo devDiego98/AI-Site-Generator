@@ -1,0 +1,17 @@
+/* SplashCursor — layout styles for reactbits.dev full-viewport backgrounds */
+.splash-cursor-container,
+.splash-cursor-container canvas {
+  width: 100%;
+  height: 100%;
+}
+.splash-cursor-container {
+  position: relative;
+  overflow: hidden;
+  min-height: 100%;
+}
+.splash-cursor-root {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+}

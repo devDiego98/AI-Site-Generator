@@ -1,0 +1,11 @@
+/* DarkVeil — layout styles for reactbits.dev full-viewport backgrounds */
+.dark-veil-container,
+.dark-veil-container canvas {
+  width: 100%;
+  height: 100%;
+}
+.dark-veil-container {
+  position: relative;
+  overflow: hidden;
+  min-height: 100%;
+}

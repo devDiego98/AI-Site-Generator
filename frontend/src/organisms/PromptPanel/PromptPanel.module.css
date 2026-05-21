@@ -1,0 +1,63 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: var(--panel-width);
+  min-width: var(--panel-width);
+  height: 100%;
+  background: var(--color-bg-panel);
+  border-right: 1px solid var(--color-border-subtle);
+  overflow: hidden;
+}
+
+.scroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  height: 100%;
+  min-height: 0;
+  padding: var(--space-6);
+  overflow-y: auto;
+}
+
+.activeProject {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--palette-primary-700);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-muted);
+}
+
+.projectPrompt {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.modifySection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: rgba(99, 102, 241, 0.06);
+}
+
+@media (max-width: 900px) {
+  .panel {
+    width: 100%;
+    min-width: unset;
+    min-height: 320px;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}

@@ -1,0 +1,207 @@
+{
+  "components": [
+    "Aurora",
+    "SoftAurora",
+    "Iridescence",
+    "Threads",
+    "Particles",
+    "Ribbons",
+    "Orb",
+    "Hyperspeed",
+    "GridScan",
+    "DotGrid",
+    "Grainient",
+    "LiquidEther",
+    "Plasma",
+    "PlasmaWave",
+    "Prism",
+    "PrismaticBurst",
+    "Galaxy",
+    "PixelSnow",
+    "DarkVeil",
+    "FloatingLines",
+    "LaserFlow",
+    "LightRays",
+    "LightPillar",
+    "SplashCursor"
+  ],
+  "dependencies": [
+    "ogl@^1.0.11",
+    "postprocessing@^6.36.0",
+    "three@^0.167.1",
+    "face-api.js@^0.22.2",
+    "gsap@^3.13.0"
+  ],
+  "failed": [],
+  "wrappers": [
+    {
+      "name": "Aurora",
+      "containerClass": "aurora-container",
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "name": "SoftAurora",
+      "containerClass": "soft-aurora-container",
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "name": "Iridescence",
+      "containerClass": "iridescence-container",
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "name": "Threads",
+      "containerClass": "threads-container",
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "name": "Particles",
+      "containerClass": "particles-container",
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "name": "Ribbons",
+      "containerClass": "ribbons-container",
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "name": "Orb",
+      "containerClass": "orb-container",
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "name": "Hyperspeed",
+      "containerClass": "hyperspeed-container",
+      "deps": [
+        "postprocessing@^6.36.0",
+        "three@^0.167.1"
+      ]
+    },
+    {
+      "name": "GridScan",
+      "containerClass": "grid-scan-container",
+      "deps": [
+        "face-api.js@^0.22.2",
+        "postprocessing@^6.36.0",
+        "three@^0.167.1"
+      ]
+    },
+    {
+      "name": "DotGrid",
+      "containerClass": "dot-grid-container",
+      "deps": [
+        "gsap@^3.13.0"
+      ]
+    },
+    {
+      "name": "Grainient",
+      "containerClass": "grainient-container",
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "name": "LiquidEther",
+      "containerClass": "liquid-ether-container",
+      "deps": [
+        "three@^0.167.1"
+      ]
+    },
+    {
+      "name": "Plasma",
+      "containerClass": "plasma-container",
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "name": "PlasmaWave",
+      "containerClass": "plasma-wave-container",
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "name": "Prism",
+      "containerClass": "prism-container",
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "name": "PrismaticBurst",
+      "containerClass": "prismatic-burst-container",
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "name": "Galaxy",
+      "containerClass": "galaxy-container",
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "name": "PixelSnow",
+      "containerClass": "pixel-snow-container",
+      "deps": [
+        "three@^0.167.1"
+      ]
+    },
+    {
+      "name": "DarkVeil",
+      "containerClass": "dark-veil-container",
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "name": "FloatingLines",
+      "containerClass": "floating-lines-container",
+      "deps": [
+        "three@^0.167.1"
+      ]
+    },
+    {
+      "name": "LaserFlow",
+      "containerClass": "laser-flow-container",
+      "deps": [
+        "three@^0.167.1"
+      ]
+    },
+    {
+      "name": "LightRays",
+      "containerClass": "light-rays-container",
+      "deps": [
+        "ogl@^1.0.11"
+      ]
+    },
+    {
+      "name": "LightPillar",
+      "containerClass": "light-pillar-container",
+      "deps": [
+        "three@^0.167.1"
+      ]
+    },
+    {
+      "name": "SplashCursor",
+      "containerClass": "splash-cursor-container",
+      "deps": []
+    }
+  ]
+}
