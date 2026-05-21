@@ -25,13 +25,17 @@ const SAMPLE = `export default function GeneratedApp() {
 describe('inferPrimaryTheme', () => {
   it('detects education from course prompts', () => {
     expect(
-      inferPrimaryTheme('Create a landing page for an AI course for entrepreneurs'),
+      inferPrimaryTheme(
+        'Create a landing page for an AI course for entrepreneurs',
+      ),
     ).toBe('education');
   });
 
   it('detects finance from personal finance prompts', () => {
     expect(
-      inferPrimaryTheme('Create a modern landing page for a personal finance app'),
+      inferPrimaryTheme(
+        'Create a modern landing page for a personal finance app',
+      ),
     ).toBe('finance');
   });
 });
@@ -39,7 +43,9 @@ describe('inferPrimaryTheme', () => {
 describe('pickBackgroundForPrompt', () => {
   it('returns stable background for the same prompt without variation', () => {
     const prompt = 'Create a landing page for a 3D printing academy';
-    expect(pickBackgroundForPrompt(prompt)).toBe(pickBackgroundForPrompt(prompt));
+    expect(pickBackgroundForPrompt(prompt)).toBe(
+      pickBackgroundForPrompt(prompt),
+    );
   });
 
   it('can differ for the same prompt across generation runs', () => {
@@ -92,7 +98,10 @@ describe('applyTopicImagesToCode', () => {
 describe('applyPromptThemedGeneration', () => {
   it('keeps AI-chosen background and applies topic images', async () => {
     const prompt = 'Create a pricing section for a SaaS product';
-    const { code, background } = await applyPromptThemedGeneration(prompt, SAMPLE);
+    const { code, background } = await applyPromptThemedGeneration(
+      prompt,
+      SAMPLE,
+    );
     expect(background).toBe('SoftAurora');
     expect(code).toContain('<SoftAurora');
     expect(code).toMatch(/loremflickr\.com/);

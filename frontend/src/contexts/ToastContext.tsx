@@ -1,13 +1,6 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { ToastViewport } from '@/organisms/ToastViewport'
+import { ToastContext } from '@/contexts/toast-context'
 
 const TOAST_DURATION_MS = 5000
 
@@ -15,12 +8,6 @@ interface ToastItem {
   id: string
   message: string
 }
-
-interface ToastContextValue {
-  showToast: (message: string) => void
-}
-
-const ToastContext = createContext<ToastContextValue | null>(null)
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([])
@@ -56,12 +43,4 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       <ToastViewport toasts={toasts} onDismiss={dismissToast} />
     </ToastContext.Provider>
   )
-}
-
-export function useToast(): ToastContextValue {
-  const context = useContext(ToastContext)
-  if (!context) {
-    throw new Error('useToast must be used within a ToastProvider')
-  }
-  return context
 }

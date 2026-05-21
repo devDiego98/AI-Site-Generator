@@ -55,9 +55,9 @@ describe('pickTagsForImageSlot', () => {
   it('includes theme-relevant tags', () => {
     const tags = pickTagsForImageSlot('AI startup dashboard', 'ai', 0);
     expect(tags.length).toBeGreaterThan(0);
-    expect(tags.some((t) => /robot|technology|computer|data|circuit/i.test(t))).toBe(
-      true,
-    );
+    expect(
+      tags.some((t) => /robot|technology|computer|data|circuit/i.test(t)),
+    ).toBe(true);
   });
 });
 

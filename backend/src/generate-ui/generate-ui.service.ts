@@ -19,10 +19,7 @@ export class GenerateUiService {
     };
   }
 
-  async modify(
-    instruction: string,
-    currentCode: string,
-  ): Promise<GeneratedUi> {
+  async modify(instruction: string, currentCode: string): Promise<GeneratedUi> {
     const trimmedInstruction = instruction.trim();
     const code = await this.aiService.modifyUiCode(
       trimmedInstruction,

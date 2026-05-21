@@ -19,9 +19,7 @@ const SAMPLE = `export default function GeneratedApp() {
 
 describe('isRandomBackgroundChangeRequest', () => {
   it('detects generic background change requests', () => {
-    expect(isRandomBackgroundChangeRequest('change the background')).toBe(
-      true,
-    );
+    expect(isRandomBackgroundChangeRequest('change the background')).toBe(true);
     expect(isRandomBackgroundChangeRequest('swap background please')).toBe(
       true,
     );

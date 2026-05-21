@@ -44,10 +44,9 @@ describe('validateUiCode', () => {
   });
 
   it('rejects invalid syntax', () => {
-    expect(validateUiCode('export default function GeneratedApp({')).toEqual({
-      valid: false,
-      error: expect.any(String),
-    });
+    const result = validateUiCode('export default function GeneratedApp({');
+    expect(result.valid).toBe(false);
+    expect(typeof result.error).toBe('string');
   });
 
   it('rejects self-referencing GeneratedApp wrapper', () => {

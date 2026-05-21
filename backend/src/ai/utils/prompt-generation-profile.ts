@@ -67,7 +67,8 @@ const EVENT_EXPERIENCE_VARIANTS = [
       'venue or map block',
       'registration CTA band',
     ],
-    layoutTwist: 'Emphasize a vertical session timeline with alternating alignment.',
+    layoutTwist:
+      'Emphasize a vertical session timeline with alternating alignment.',
     navSalt: 2,
     heroSalt: 0,
   },
@@ -95,7 +96,8 @@ const EVENT_EXPERIENCE_VARIANTS = [
       'FAQ accordion',
       'contact / venue line',
     ],
-    layoutTwist: 'Speaker-first: three large speaker cards above the fold on home.',
+    layoutTwist:
+      'Speaker-first: three large speaker cards above the fold on home.',
     navSalt: 0,
     heroSalt: 2,
   },
@@ -109,7 +111,8 @@ const EVENT_EXPERIENCE_VARIANTS = [
       'testimonials or past event photos',
       'register form section',
     ],
-    layoutTwist: 'Agenda as tabbed tracks (e.g. main stage, workshops, networking).',
+    layoutTwist:
+      'Agenda as tabbed tracks (e.g. main stage, workshops, networking).',
     navSalt: 5,
     heroSalt: 3,
   },
@@ -200,7 +203,9 @@ function inferLayoutArchetype(
   if (/\b(logistics|fleet|enterprise|infrastructure|b2b)\b/i.test(text)) {
     return LAYOUT_ARCHETYPE_LABELS[0];
   }
-  if (/\b(fintech|analytics|dashboard|data platform|developer tool)\b/i.test(text)) {
+  if (
+    /\b(fintech|analytics|dashboard|data platform|developer tool)\b/i.test(text)
+  ) {
     return LAYOUT_ARCHETYPE_LABELS[1];
   }
   if (/\b(ai tool|creative tool|minimal)\b/i.test(text)) {
@@ -226,7 +231,11 @@ function inferArchetype(
 } {
   const text = prompt.toLowerCase();
 
-  if (/\b(pricing section|pricing page|three plans|subscription tiers)\b/i.test(text)) {
+  if (
+    /\b(pricing section|pricing page|three plans|subscription tiers)\b/i.test(
+      text,
+    )
+  ) {
     return {
       archetype: 'pricing-focus',
       pageStrategy:
@@ -246,12 +255,20 @@ function inferArchetype(
       pageStrategy:
         'App shell with sidebar or top tabs — 3–6 views (overview, reports, settings, etc.) driven by currentPage.',
       navigation: 'sidebar navigation with icons/labels',
-      sections: ['KPI cards', 'charts', 'data table', 'filters', 'recent activity'],
+      sections: [
+        'KPI cards',
+        'charts',
+        'data table',
+        'filters',
+        'recent activity',
+      ],
       avoid: ['marketing landing hero', 'pricing tables unless asked'],
     };
   }
 
-  if (/\b(meetup|conference|event|summit|webinar|festival|ticket)\b/i.test(text)) {
+  if (
+    /\b(meetup|conference|event|summit|webinar|festival|ticket)\b/i.test(text)
+  ) {
     const eventVariant = variation
       ? pickFromVariationPool(EVENT_EXPERIENCE_VARIANTS, variation, 11)
       : EVENT_EXPERIENCE_VARIANTS[0];
@@ -272,7 +289,11 @@ function inferArchetype(
     };
   }
 
-  if (/\b(course|academy|learning|curriculum|instructor|lesson|training)\b/i.test(text)) {
+  if (
+    /\b(course|academy|learning|curriculum|instructor|lesson|training)\b/i.test(
+      text,
+    )
+  ) {
     return {
       archetype: 'course-offering',
       pageStrategy:
@@ -290,7 +311,11 @@ function inferArchetype(
     };
   }
 
-  if (/\b(portfolio|agency|design studio|creative|showcase|case study)\b/i.test(text)) {
+  if (
+    /\b(portfolio|agency|design studio|creative|showcase|case study)\b/i.test(
+      text,
+    )
+  ) {
     return {
       archetype: 'creative-portfolio',
       pageStrategy:
@@ -301,7 +326,11 @@ function inferArchetype(
     };
   }
 
-  if (/\b(finance|fintech|banking|budget|wallet|investment|personal finance)\b/i.test(text)) {
+  if (
+    /\b(finance|fintech|banking|budget|wallet|investment|personal finance)\b/i.test(
+      text,
+    )
+  ) {
     return {
       archetype: 'finance-product',
       pageStrategy:
@@ -352,7 +381,12 @@ function inferArchetype(
       pageStrategy:
         'SaaS marketing — only if prompt implies SaaS; 1–4 pages if prompt mentions them.',
       navigation: pickVariant(prompt, NAV_PATTERNS, 8, variation),
-      sections: ['product hero', 'integrations or logos', 'features', 'pricing optional'],
+      sections: [
+        'product hero',
+        'integrations or logos',
+        'features',
+        'pricing optional',
+      ],
       avoid: ['using this template for non-SaaS prompts'],
     };
   }
@@ -362,7 +396,12 @@ function inferArchetype(
       archetype: 'single-screen',
       pageStrategy: 'Exactly one view (currentPage="main") — no extra routes.',
       navigation: 'no multi-page nav — scroll sections only',
-      sections: ['hero', 'primary content block', 'supporting detail', 'footer CTA'],
+      sections: [
+        'hero',
+        'primary content block',
+        'supporting detail',
+        'footer CTA',
+      ],
       avoid: ['multi-page routing', 'dashboard sidebar'],
     };
   }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Badge } from '@/atoms/Badge'
 import { Icon } from '@/atoms/Icon'
 import { Text } from '@/atoms/Text'
@@ -89,11 +89,13 @@ export function HistoryPanel({
     () => new Set(activeProjectId ? [activeProjectId] : []),
   )
 
-  useEffect(() => {
+  const effectiveExpandedIds = useMemo(() => {
+    const next = new Set(expandedProjectIds)
     if (activeProjectId) {
-      setExpandedProjectIds((prev) => new Set(prev).add(activeProjectId))
+      next.add(activeProjectId)
     }
-  }, [activeProjectId])
+    return next
+  }, [expandedProjectIds, activeProjectId])
 
   const toggleExpanded = (projectId: string) => {
     setExpandedProjectIds((prev) => {
@@ -133,7 +135,7 @@ export function HistoryPanel({
         <ul className={styles.list}>
           {projects.map((project) => {
             const isActiveProject = project.id === activeProjectId
-            const isExpanded = expandedProjectIds.has(project.id)
+            const isExpanded = effectiveExpandedIds.has(project.id)
 
             return (
               <li

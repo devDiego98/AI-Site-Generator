@@ -8,7 +8,9 @@ import {
 describe('inferVisualMode', () => {
   it('prefers light for wellness prompts', () => {
     expect(
-      inferVisualMode('Create a calm wellness spa landing with soft pastel tones'),
+      inferVisualMode(
+        'Create a calm wellness spa landing with soft pastel tones',
+      ),
     ).toBe('light');
   });
 

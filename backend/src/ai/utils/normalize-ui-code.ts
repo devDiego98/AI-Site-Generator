@@ -69,7 +69,10 @@ function extractOrphanJsx(code: string, componentStart: number): string | null {
   return before;
 }
 
-function extractFunctionBody(code: string, componentStart: number): string | null {
+function extractFunctionBody(
+  code: string,
+  componentStart: number,
+): string | null {
   const braceStart = code.indexOf('{', componentStart);
   if (braceStart === -1) {
     return null;

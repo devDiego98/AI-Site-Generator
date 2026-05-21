@@ -1,4 +1,5 @@
-const FENCE_PATTERN = /^```(?:tsx?|jsx?|javascript|html)?\s*\n?([\s\S]*?)```\s*$/i;
+const FENCE_PATTERN =
+  /^```(?:tsx?|jsx?|javascript|html)?\s*\n?([\s\S]*?)```\s*$/i;
 
 export function extractUiCode(raw: string): string {
   const trimmed = raw.trim();

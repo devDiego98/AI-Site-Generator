@@ -1,10 +1,7 @@
 import type Groq from 'groq-sdk';
 import { buildDesignFixUserMessage } from './design-fix-prompt';
 import { extractUiCode } from './extract-ui-code';
-import {
-  prepareUiCode,
-  type ValidateUiCodeResult,
-} from './validate-ui-code';
+import { prepareUiCode, type ValidateUiCodeResult } from './validate-ui-code';
 
 export const DEFAULT_MAX_AI_FIX_ATTEMPTS = 3;
 

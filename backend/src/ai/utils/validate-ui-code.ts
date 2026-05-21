@@ -1,7 +1,6 @@
 import { parse, type ParserPlugin } from '@babel/parser';
 import type {
   BlockStatement,
-  CallExpression,
   Expression,
   JSXOpeningElement,
   Node,
@@ -9,7 +8,11 @@ import type {
 import { formatDesignEvaluationError } from './evaluate-ui-design';
 import { hasMergedJsxTagAttributes } from './jsx-tag-utils';
 import { hasOrphanRefAttribute } from './fix-orphan-ref';
-import { isTrivialJsx, migrateToGeneratedApp, normalizeUiCode } from './normalize-ui-code';
+import {
+  isTrivialJsx,
+  migrateToGeneratedApp,
+  normalizeUiCode,
+} from './normalize-ui-code';
 import { runDesignQualityPipeline } from './fix-ui-design';
 
 const PARSER_PLUGINS: ParserPlugin[] = ['jsx'];
@@ -23,7 +26,10 @@ const UNSAFE_PATTERNS: Array<{ pattern: RegExp; message: string }> = [
     message: 'dangerouslySetInnerHTML is not allowed',
   },
   { pattern: /\beval\s*\(/, message: 'eval is not allowed' },
-  { pattern: /\bnew\s+Function\s*\(/, message: 'Function constructor is not allowed' },
+  {
+    pattern: /\bnew\s+Function\s*\(/,
+    message: 'Function constructor is not allowed',
+  },
 ];
 
 export interface ValidateUiCodeResult {
@@ -118,7 +124,10 @@ function extractRenderableJsx(code: string): string | null {
   }
 
   for (const node of body) {
-    if (node.type === 'FunctionDeclaration' && isRootComponentName(node.id?.name)) {
+    if (
+      node.type === 'FunctionDeclaration' &&
+      isRootComponentName(node.id?.name)
+    ) {
       return getReturnJsxFromFunctionBody(code, node.body);
     }
   }
@@ -178,7 +187,7 @@ function isComponentCallExpression(expression: Expression): boolean {
     return false;
   }
 
-  const callee = (expression as CallExpression).callee;
+  const callee = expression.callee;
   return callee.type === 'Identifier';
 }
 
@@ -331,8 +340,7 @@ export function validateUiCode(code: string): ValidateUiCodeResult {
   if (!returnJsx || isTrivialJsx(returnJsx)) {
     return {
       valid: false,
-      error:
-        'GeneratedApp must return meaningful JSX (not an empty element)',
+      error: 'GeneratedApp must return meaningful JSX (not an empty element)',
     };
   }
 

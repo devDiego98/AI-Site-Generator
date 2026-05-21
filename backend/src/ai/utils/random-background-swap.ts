@@ -25,18 +25,22 @@ export function isBackgroundColorOnlyRequest(instruction: string): boolean {
     return true;
   }
 
+  const namedOrHex = `(?:${NAMED_COLOR.source}|${HEX_COLOR.source})`;
+
   if (
-    /\b(?:make|turn|set)\b[\s\S]{0,30}\bbackground\b[\s\S]{0,30}\b(?:more\s+)?(?:${NAMED_COLOR.source}|${HEX_COLOR.source})/i.test(
-      text,
-    )
+    new RegExp(
+      `\\b(?:make|turn|set)\\b[\\s\\S]{0,30}\\bbackground\\b[\\s\\S]{0,30}\\b(?:more\\s+)?${namedOrHex}`,
+      'i',
+    ).test(text)
   ) {
     return true;
   }
 
   if (
-    /\bbackground\b[\s\S]{0,30}\b(?:to|into)\b[\s\S]{0,20}\b(?:${NAMED_COLOR.source}|${HEX_COLOR.source})/i.test(
-      text,
-    )
+    new RegExp(
+      `\\bbackground\\b[\\s\\S]{0,30}\\b(?:to|into)\\b[\\s\\S]{0,20}\\b${namedOrHex}`,
+      'i',
+    ).test(text)
   ) {
     return true;
   }
@@ -51,10 +55,7 @@ export function isRandomBackgroundChangeRequest(instruction: string): boolean {
     return false;
   }
 
-  if (
-    mentionsSpecificBackground(text) ||
-    isBackgroundColorOnlyRequest(text)
-  ) {
+  if (mentionsSpecificBackground(text) || isBackgroundColorOnlyRequest(text)) {
     return false;
   }
 
@@ -158,10 +159,7 @@ export function replaceBackground(
     if (!newInner.trim()) {
       newInner = `\n        ${nextUsage}\n      `;
     }
-    const updated = code.replace(
-      wrapperMatch[0],
-      `${open}${newInner}${close}`,
-    );
+    const updated = code.replace(wrapperMatch[0], `${open}${newInner}${close}`);
     return { code: updated, component: next };
   }
 

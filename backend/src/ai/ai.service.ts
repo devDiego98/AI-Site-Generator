@@ -22,6 +22,24 @@ import {
 } from './utils/ai-ui-fix-loop';
 import { prepareUiCode } from './utils/validate-ui-code';
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function rateLimitErrorMessage(error: RateLimitError): string | undefined {
+  if (isRecord(error.error)) {
+    const nested = error.error.error;
+    if (
+      isRecord(nested) &&
+      typeof nested.message === 'string' &&
+      nested.message.length > 0
+    ) {
+      return nested.message;
+    }
+  }
+  return error.message.length > 0 ? error.message : undefined;
+}
+
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
@@ -182,10 +200,7 @@ export class AiService {
       }
 
       if (error instanceof RateLimitError) {
-        const body = error.error as
-          | { error?: { message?: string } }
-          | undefined;
-        const message = body?.error?.message ?? error.message;
+        const message = rateLimitErrorMessage(error);
         this.logger.error('Groq rate limit exceeded', message);
         throw new BadGatewayException(
           message ??

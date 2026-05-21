@@ -9,9 +9,14 @@ export function AppHeader() {
           AI UI Builder
         </Text>
       </div>
-      <Text variant="caption" color="muted">
-        Describe an interface · Preview or inspect code
-      </Text>
+      <div className={styles.meta}>
+        <Text variant="caption" color="muted">
+          Describe an interface · Preview or inspect code
+        </Text>
+        <a href="/debug" className={styles.debugLink}>
+          Debug components
+        </a>
+      </div>
     </header>
   );
 }

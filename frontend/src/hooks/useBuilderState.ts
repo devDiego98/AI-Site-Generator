@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useToast } from '@/contexts/ToastContext'
+import { useToast } from '@/hooks/useToast'
 import { generateUi, modifyUi } from '@/services/generateUiApi'
 import {
   reportGenerationError,

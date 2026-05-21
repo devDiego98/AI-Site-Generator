@@ -18,7 +18,8 @@ function collectImageSlots(code: string): Array<{
   url: string;
   isAvatar: boolean;
 }> {
-  const slots: Array<{ fullMatch: string; url: string; isAvatar: boolean }> = [];
+  const slots: Array<{ fullMatch: string; url: string; isAvatar: boolean }> =
+    [];
   const re = new RegExp(IMG_SRC_RE.source, IMG_SRC_RE.flags);
   let match: RegExpExecArray | null;
 
@@ -81,15 +82,23 @@ export async function applyTopicImagesToCode(
   let slotIndex = 0;
   const re = new RegExp(IMG_SRC_RE.source, IMG_SRC_RE.flags);
 
-  return code.replace(re, (fullMatch, ...groups) => {
-    const url =
-      groups[0] ?? groups[1] ?? groups[2] ?? groups[3] ?? '';
-    if (!isReplaceableImageSrc(url)) {
-      return fullMatch;
-    }
+  return code.replace(
+    re,
+    (
+      fullMatch: string,
+      g1?: string,
+      g2?: string,
+      g3?: string,
+      g4?: string,
+    ): string => {
+      const url = g1 ?? g2 ?? g3 ?? g4 ?? '';
+      if (!isReplaceableImageSrc(url)) {
+        return fullMatch;
+      }
 
-    const nextUrl = replacementUrls[slotIndex];
-    slotIndex += 1;
-    return fullMatch.replace(url, nextUrl);
-  });
+      const nextUrl = replacementUrls[slotIndex];
+      slotIndex += 1;
+      return fullMatch.replace(url, nextUrl);
+    },
+  );
 }

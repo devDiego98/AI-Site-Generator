@@ -55,7 +55,14 @@ export const THEME_IMAGE_TAGS: Record<PromptTheme, readonly string[]> = {
   generic: ['business', 'technology', 'people', 'office', 'city'],
 };
 
-const SLOT_TAG_OFFSETS = ['', 'team', 'product', 'workspace', 'hero', 'portrait'];
+const SLOT_TAG_OFFSETS = [
+  '',
+  'team',
+  'product',
+  'workspace',
+  'hero',
+  'portrait',
+];
 
 export const IMG_SRC_RE =
   /src=(?:"([^"]+)"|'([^']+)'|\{\s*"([^"]+)"\s*\}|\{\s*'([^']+)'\s*\})/gi;
@@ -84,11 +91,9 @@ export function buildImageSearchQuery(
 ): string {
   const themeTags = THEME_IMAGE_TAGS[theme];
   const promptWords = extractPromptKeywords(prompt);
-  const parts = [
-    themeTags[0],
-    themeTags[1],
-    ...promptWords.slice(0, 4),
-  ].filter(Boolean);
+  const parts = [themeTags[0], themeTags[1], ...promptWords.slice(0, 4)].filter(
+    Boolean,
+  );
 
   return [...new Set(parts)].join(' ').trim().slice(0, 100) || themeTags[0];
 }

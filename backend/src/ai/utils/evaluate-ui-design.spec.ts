@@ -114,9 +114,9 @@ describe('hasNestedCards', () => {
 describe('evaluateUiDesign', () => {
   it('passes pages with multiple sibling Cards in a grid', () => {
     const result = evaluateUiDesign(MULTI_CARD_GRID);
-    expect(
-      result.issues.some((i) => i.message.includes('Nested Card')),
-    ).toBe(false);
+    expect(result.issues.some((i) => i.message.includes('Nested Card'))).toBe(
+      false,
+    );
     expect(result.passed).toBe(true);
   });
 
@@ -146,9 +146,9 @@ describe('evaluateUiDesign', () => {
   it('fails when Cards are actually nested', () => {
     const result = evaluateUiDesign(NESTED_CARDS);
     expect(result.passed).toBe(false);
-    expect(
-      result.issues.some((i) => i.message.includes('Nested Card')),
-    ).toBe(true);
+    expect(result.issues.some((i) => i.message.includes('Nested Card'))).toBe(
+      true,
+    );
   });
 
   it('fails dark pages with dark text on dark sections', () => {
@@ -222,7 +222,8 @@ describe('runDesignQualityPipeline', () => {
     </div>
   );
 }`;
-    const { code, evaluation, fixed } = runDesignQualityPipeline(withSectionGlass);
+    const { code, evaluation, fixed } =
+      runDesignQualityPipeline(withSectionGlass);
     expect(fixed).toBe(true);
     expect(evaluation.passed).toBe(true);
     const sectionMatches = code.match(/<section[^>]*>/g) ?? [];

@@ -1,4 +1,8 @@
-import { isTrivialJsx, migrateToGeneratedApp, normalizeUiCode } from './normalize-ui-code';
+import {
+  isTrivialJsx,
+  migrateToGeneratedApp,
+  normalizeUiCode,
+} from './normalize-ui-code';
 
 describe('isTrivialJsx', () => {
   it('detects empty elements', () => {

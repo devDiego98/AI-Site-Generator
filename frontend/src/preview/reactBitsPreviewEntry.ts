@@ -12,7 +12,6 @@ const REACT_BITS_NAMES = Object.keys(ReactBits) as (keyof typeof ReactBits)[]
 function exposeGlobal(name: string, value: unknown): void {
   ;(globalThis as Record<string, unknown>)[name] = value
   try {
-    // eslint-disable-next-line no-eval -- required for strict-mode preview scripts
     ;(0, eval)(`var ${name} = globalThis[${JSON.stringify(name)}]`)
   } catch {
     // Reserved identifiers — window assignment still works for window.LiquidEther access

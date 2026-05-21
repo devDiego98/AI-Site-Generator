@@ -33,7 +33,11 @@ function sectionUsesForbiddenSurface(classStr: string): boolean {
   );
 }
 
-export type DesignIssueCategory = 'contrast' | 'typography' | 'spacing' | 'structure';
+export type DesignIssueCategory =
+  | 'contrast'
+  | 'typography'
+  | 'spacing'
+  | 'structure';
 
 export type DesignIssueSeverity = 'error' | 'warning';
 
@@ -116,16 +120,18 @@ function classNameAtIndex(code: string, index: number): string | null {
 }
 
 export function inferVisualModeFromCode(code: string): VisualMode {
-  if (/bg-\[#0a0a0a\]|bg-\[#0b0b0b\]|bg-\[#0d0d0d\]|bg-\[#111114\]/.test(code)) {
+  if (
+    /bg-\[#0a0a0a\]|bg-\[#0b0b0b\]|bg-\[#0d0d0d\]|bg-\[#111114\]/.test(code)
+  ) {
     return 'dark';
   }
-  if (/bg-\[#f2f2ef\]|bg-\[#f5f5f2\]|bg-\[#f4f4f1\]|bg-\[#fafaf8\]/.test(code)) {
+  if (
+    /bg-\[#f2f2ef\]|bg-\[#f5f5f2\]|bg-\[#f4f4f1\]|bg-\[#fafaf8\]/.test(code)
+  ) {
     return 'light';
   }
 
-  const rootMatch = code.match(
-    /<div\s+className=(?:"([^"]*)"|'([^']*)')/,
-  );
+  const rootMatch = code.match(/<div\s+className=(?:"([^"]*)"|'([^']*)')/);
   if (rootMatch) {
     const rootClasses = rootMatch[1] ?? rootMatch[2] ?? '';
     if (DARK_SHELL_PATTERN.test(rootClasses)) {
@@ -160,7 +166,9 @@ function hasMarginUtility(classStr: string): boolean {
 }
 
 function hasSpacingUtility(classStr: string): boolean {
-  return /\b(?:p[xytblr]?-\d+|py-\[|px-\[|gap-\d+|space-[xy]-\d+)\b/.test(classStr);
+  return /\b(?:p[xytblr]?-\d+|py-\[|px-\[|gap-\d+|space-[xy]-\d+)\b/.test(
+    classStr,
+  );
 }
 
 function hasHeadingScale(classStr: string): boolean {
@@ -198,7 +206,9 @@ export function evaluateUiDesign(code: string): DesignEvaluation {
     const cls = classString(cardMatch[1] ?? '');
     if (
       !hasGlassSurface(cls) &&
-      /\b(?:bg-card(?![\/])|bg-background(?![\/])|bg-white(?![\/])|bg-slate)\b/.test(cls)
+      /\b(?:bg-card(?![/])|bg-background(?![/])|bg-white(?![/])|bg-slate)\b/.test(
+        cls,
+      )
     ) {
       cardsWithoutGlass += 1;
     }
@@ -224,7 +234,7 @@ export function evaluateUiDesign(code: string): DesignEvaluation {
   let sectionsWithOpaque = 0;
   while ((sectionMatchGlass = SECTION_TAG.exec(code)) !== null) {
     const cls = classString(sectionMatchGlass[1] ?? '');
-    if (/\b(?:bg-card|bg-background|bg-white(?![\/])|bg-slate-50)\b/.test(cls)) {
+    if (/\b(?:bg-card|bg-background|bg-white(?![/])|bg-slate-50)\b/.test(cls)) {
       sectionsWithOpaque += 1;
     }
     if (sectionUsesForbiddenSurface(cls)) {
@@ -319,7 +329,10 @@ export function evaluateUiDesign(code: string): DesignEvaluation {
     });
   }
 
-  if (/\breactbits-bg\b/.test(code) && !/\breactbits-bg[^>]*\bfixed\b/.test(code)) {
+  if (
+    /\breactbits-bg\b/.test(code) &&
+    !/\breactbits-bg[^>]*\bfixed\b/.test(code)
+  ) {
     issues.push({
       category: 'structure',
       severity: 'warning',
@@ -406,7 +419,11 @@ export function evaluateUiDesign(code: string): DesignEvaluation {
         severity: 'error',
         message: `Low contrast on light background: "${lightTextMatch[0]}" — use text-slate-900 or text-slate-800.`,
       });
-      if (issues.filter((i) => i.category === 'contrast' && i.severity === 'error').length >= 5) {
+      if (
+        issues.filter(
+          (i) => i.category === 'contrast' && i.severity === 'error',
+        ).length >= 5
+      ) {
         break;
       }
     }
@@ -463,7 +480,8 @@ export function evaluateUiDesign(code: string): DesignEvaluation {
       issues.push({
         category: 'spacing',
         severity: 'warning',
-        message: '<main> should include layout spacing (padding or max-width wrapper).',
+        message:
+          '<main> should include layout spacing (padding or max-width wrapper).',
       });
     }
   }
@@ -477,9 +495,7 @@ export function evaluateUiDesign(code: string): DesignEvaluation {
     });
   }
 
-  const rootMatch = code.match(
-    /<div\s+className=(?:"([^"]*)"|'([^']*)')/,
-  );
+  const rootMatch = code.match(/<div\s+className=(?:"([^"]*)"|'([^']*)')/);
   if (rootMatch) {
     const rootCls = rootMatch[1] ?? rootMatch[2] ?? '';
     if (/\bmin-h-screen\b/.test(rootCls) && !ROOT_SHELL_BG.test(rootCls)) {
@@ -492,10 +508,7 @@ export function evaluateUiDesign(code: string): DesignEvaluation {
     }
   }
 
-  if (
-    /\bmin-h-screen\b/.test(code) &&
-    !/\breactbits-bg\b/.test(code)
-  ) {
+  if (/\bmin-h-screen\b/.test(code) && !/\breactbits-bg\b/.test(code)) {
     issues.push({
       category: 'structure',
       severity: 'error',
@@ -512,7 +525,9 @@ export function evaluateUiDesign(code: string): DesignEvaluation {
   };
 }
 
-export function formatDesignEvaluationError(evaluation: DesignEvaluation): string {
+export function formatDesignEvaluationError(
+  evaluation: DesignEvaluation,
+): string {
   const errors = evaluation.issues.filter((i) => i.severity === 'error');
   const lines = errors.map((e) => `- [${e.category}] ${e.message}`);
   return [

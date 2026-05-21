@@ -1,0 +1,124 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg-app);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-default);
+  background: var(--color-bg-panel);
+}
+
+.backLink {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.backLink:hover {
+  color: var(--color-text-primary);
+}
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(320px, 1.2fr);
+  flex: 1;
+  min-height: 0;
+}
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: 0;
+  padding: var(--space-5);
+  border-right: 1px solid var(--color-border-default);
+  background: var(--color-bg-panel);
+}
+
+.editorLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+}
+
+.codeInput {
+  flex: 1;
+  min-height: 200px;
+  width: 100%;
+  padding: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-primary);
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  resize: none;
+}
+
+.codeInput:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px var(--color-accent-muted);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--color-bg-canvas);
+}
+
+.previewToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  background: var(--palette-neutral-0);
+  border-bottom: 1px solid var(--palette-neutral-200);
+}
+
+.previewCanvas {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--palette-neutral-100);
+}
+
+.emptyPreview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--space-6);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .body {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    overflow: auto;
+  }
+
+  .editor {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-default);
+  }
+}

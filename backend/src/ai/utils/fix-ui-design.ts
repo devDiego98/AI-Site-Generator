@@ -16,10 +16,7 @@ import {
   hasDarkSolidBackground,
   hasLightSolidBackground,
 } from './contrast-utils';
-import {
-  fixMergedJsxTagAttributes,
-  formatOpenTagAttrs,
-} from './jsx-tag-utils';
+import { fixMergedJsxTagAttributes, formatOpenTagAttrs } from './jsx-tag-utils';
 import {
   evaluateUiDesign,
   inferVisualModeFromCode,
@@ -65,10 +62,10 @@ function hadOpaqueBackground(cls: string): boolean {
 
 /** Remove opaque fills; ReactBits stays visible on unstyled sections. */
 export function stripOpaqueBackgrounds(cls: string): string {
-  let next = cls
+  const next = cls
     .replace(OPAQUE_SEMANTIC_BG, '')
-    .replace(/\bbg-white(?![\/\d\w-])/g, '')
-    .replace(/\bbg-black(?![\/\d\w-])/g, '')
+    .replace(/\bbg-white(?![/\d\w-])/g, '')
+    .replace(/\bbg-black(?![/\d\w-])/g, '')
     .replace(/\bbg-slate-50\b/g, '')
     .replace(/\bbg-slate-950\b/g, '')
     .replace(/\bbg-slate-900\b/g, '')
@@ -135,32 +132,35 @@ function remapClasses(classStr: string, mode: VisualMode): string {
 
 function rewriteAllClassNames(code: string, mode: VisualMode): string {
   let rootSkipped = false;
-  return code.replace(CLASSNAME_ATTR, (match, dbl, sgl, tpl, jsx) => {
-    const raw = dbl ?? sgl ?? tpl ?? jsx ?? '';
-    if (!rootSkipped && /min-h-screen/.test(raw)) {
-      rootSkipped = true;
-      return match;
-    }
-    const remapped = remapClasses(raw, mode);
-    if (remapped === raw) {
-      return match;
-    }
-    const quote = match.includes('className="')
-      ? '"'
-      : match.includes("className='")
-        ? "'"
-        : dbl !== undefined
-          ? '"'
-          : "'";
-    return `className=${quote}${remapped}${quote}`;
-  });
+  return code.replace(
+    CLASSNAME_ATTR,
+    (match: string, dbl?: string, sgl?: string, tpl?: string, jsx?: string) => {
+      const raw = dbl ?? sgl ?? tpl ?? jsx ?? '';
+      if (!rootSkipped && /min-h-screen/.test(raw)) {
+        rootSkipped = true;
+        return match;
+      }
+      const remapped = remapClasses(raw, mode);
+      if (remapped === raw) {
+        return match;
+      }
+      const quote = match.includes('className="')
+        ? '"'
+        : match.includes("className='")
+          ? "'"
+          : dbl !== undefined
+            ? '"'
+            : "'";
+      return `className=${quote}${remapped}${quote}`;
+    },
+  );
 }
 
 function normalizeRootShell(code: string, mode: VisualMode): string {
   const target = mode === 'dark' ? DARK_ROOT_SHELL : LIGHT_ROOT_SHELL;
   return code.replace(
     /(<div\s+)className=(?:"([^"]*)"|'([^']*)')/,
-    (_match, prefix, dbl, sgl) => {
+    (_match: string, prefix: string, dbl?: string, sgl?: string) => {
       const quote = dbl !== undefined ? '"' : "'";
       const targetParts = new Set(target.split(/\s+/));
       const preserved = (dbl ?? sgl ?? '')
@@ -220,7 +220,7 @@ function hasSpacingUtility(classStr: string): boolean {
 
 /** Remove card-style surfaces from layout wrappers (sections/main). */
 export function stripLayoutSurfaceClasses(cls: string): string {
-  let next = cls
+  const next = cls
     .replace(/\bbackdrop-blur(?:-\[[^\]]+\]|-[a-zA-Z0-9]+)?/g, '')
     .replace(/\bsaturate-\[[^\]]+\]/g, '')
     .replace(/\bbg-white\/\d+/g, '')
@@ -247,7 +247,7 @@ function ensureLayoutInsets(attrs: string): string {
 
 /** Cards and panels that should use glass. */
 function ensureGlassPanel(attrs: string, mode: VisualMode): string {
-  let next = ensureLayoutInsets(attrs);
+  const next = ensureLayoutInsets(attrs);
   const classMatch = next.match(/className=(?:"([^"]*)"|'([^']*)')/);
   if (classMatch) {
     const quote = next.includes('className="') ? '"' : "'";
@@ -262,24 +262,30 @@ function ensureGlassPanel(attrs: string, mode: VisualMode): string {
 }
 
 function fixHeadings(code: string, mode: VisualMode): string {
-  return code.replace(HEADING_OPEN, (match, tag: string, attrs = '') => {
-    let nextAttrs = attrs;
-    const level = Number(tag.slice(1));
-    const sizeClass =
-      level === 1 ? 'text-4xl' : level === 2 ? 'text-3xl' : 'text-2xl';
-    const textClass = mode === 'dark' ? 'text-[#efefef]' : 'text-[#111111]';
+  return code.replace(
+    HEADING_OPEN,
+    (match: string, tag: string, attrs: string = '') => {
+      let nextAttrs = attrs;
+      const level = Number(tag.slice(1));
+      const sizeClass =
+        level === 1 ? 'text-4xl' : level === 2 ? 'text-3xl' : 'text-2xl';
+      const textClass = mode === 'dark' ? 'text-[#efefef]' : 'text-[#111111]';
 
-    if (!/\btext-(?:2xl|3xl|4xl|5xl|6xl)\b/.test(nextAttrs)) {
-      nextAttrs = appendClasses(nextAttrs, `${sizeClass} font-bold ${textClass}`);
-    } else {
-      nextAttrs = appendClasses(nextAttrs, 'font-bold');
-      if (!/\btext-(?:white|slate-9)/.test(nextAttrs)) {
-        nextAttrs = appendClasses(nextAttrs, textClass);
+      if (!/\btext-(?:2xl|3xl|4xl|5xl|6xl)\b/.test(nextAttrs)) {
+        nextAttrs = appendClasses(
+          nextAttrs,
+          `${sizeClass} font-bold ${textClass}`,
+        );
+      } else {
+        nextAttrs = appendClasses(nextAttrs, 'font-bold');
+        if (!/\btext-(?:white|slate-9)/.test(nextAttrs)) {
+          nextAttrs = appendClasses(nextAttrs, textClass);
+        }
       }
-    }
 
-    return `<${tag}${formatOpenTagAttrs(nextAttrs)}>`;
-  });
+      return `<${tag}${formatOpenTagAttrs(nextAttrs)}>`;
+    },
+  );
 }
 
 function fixBodyCopy(code: string, mode: VisualMode): string {
@@ -287,33 +293,35 @@ function fixBodyCopy(code: string, mode: VisualMode): string {
   let fixed = code;
   for (const tag of tags) {
     const re = new RegExp(`<${tag}(\\s[^>]*)?>`, 'gi');
-    fixed = fixed.replace(re, (match, attrs = '') => {
+    fixed = fixed.replace(re, (match: string, attrs: string = '') => {
       if (/\btext-(?:white|slate-|gray-|muted)/.test(attrs)) {
         return match;
       }
-      const addition =
-        mode === 'dark' ? 'text-white/55' : 'text-black/55';
+      const addition = mode === 'dark' ? 'text-white/55' : 'text-black/55';
       return `<${tag}${formatOpenTagAttrs(appendClasses(attrs, addition))}>`;
     });
   }
   return fixed;
 }
 
-function fixSectionsAndMain(code: string, _mode: VisualMode): string {
-  let fixed = code.replace(SECTION_OPEN, (match, attrs = '') => {
-    let next = stripLayoutSurfaceFromAttrs(attrs ?? '');
-    if (!/\bpy-/.test(next)) {
-      next = appendClasses(
-        next,
-        'py-[clamp(4rem,9vw,9rem)] px-[clamp(1rem,5vw,4rem)]',
-      );
-    }
-    if (!hasMarginUtility(next) && !hasSpacingUtility(next)) {
-      next = appendClasses(next, CONTAINER_MARGIN);
-    }
-    return `<section${formatOpenTagAttrs(next)}>`;
-  });
-  fixed = fixed.replace(MAIN_OPEN, (match, attrs = '') => {
+function fixSectionsAndMain(code: string): string {
+  let fixed = code.replace(
+    SECTION_OPEN,
+    (_match: string, attrs: string = '') => {
+      let next = stripLayoutSurfaceFromAttrs(attrs ?? '');
+      if (!/\bpy-/.test(next)) {
+        next = appendClasses(
+          next,
+          'py-[clamp(4rem,9vw,9rem)] px-[clamp(1rem,5vw,4rem)]',
+        );
+      }
+      if (!hasMarginUtility(next) && !hasSpacingUtility(next)) {
+        next = appendClasses(next, CONTAINER_MARGIN);
+      }
+      return `<section${formatOpenTagAttrs(next)}>`;
+    },
+  );
+  fixed = fixed.replace(MAIN_OPEN, (_match: string, attrs: string = '') => {
     const next = stripLayoutSurfaceFromAttrs(ensureLayoutInsets(attrs ?? ''));
     return `<main${formatOpenTagAttrs(next)}>`;
   });
@@ -332,7 +340,7 @@ function ensureNavLayoutClasses(attrs: string): string {
 }
 
 function fixButtons(code: string, mode: VisualMode): string {
-  return code.replace(BUTTON_OPEN, (match, attrs = '') => {
+  return code.replace(BUTTON_OPEN, (match: string, attrs: string = '') => {
     const classMatch = attrs.match(/className=(?:"([^"]*)"|'([^']*)')/);
     if (!classMatch) {
       const fill =
@@ -354,14 +362,17 @@ function fixButtons(code: string, mode: VisualMode): string {
 function fixHeaderNav(code: string, mode: VisualMode): string {
   const navBar = mode === 'dark' ? DARK_NAVBAR_SURFACE : LIGHT_NAVBAR_SURFACE;
 
-  let fixed = code.replace(HEADER_OPEN, (match, attrs = '') => {
-    const stripped = stripLayoutSurfaceFromAttrs(attrs ?? '');
-    return `<header${formatOpenTagAttrs(
-      appendClasses(ensureNavLayoutClasses(stripped), navBar),
-    )}>`;
-  });
+  let fixed = code.replace(
+    HEADER_OPEN,
+    (_match: string, attrs: string = '') => {
+      const stripped = stripLayoutSurfaceFromAttrs(attrs ?? '');
+      return `<header${formatOpenTagAttrs(
+        appendClasses(ensureNavLayoutClasses(stripped), navBar),
+      )}>`;
+    },
+  );
 
-  fixed = fixed.replace(NAV_OPEN, (match, attrs = '') => {
+  fixed = fixed.replace(NAV_OPEN, (_match: string, attrs: string = '') => {
     const linkColor =
       mode === 'dark'
         ? 'text-white/50 hover:text-[#f0f0f0]'
@@ -384,9 +395,17 @@ function fixReactBitsCanvas(code: string): string {
     /className=(["'])([^"']*reactbits-bg[^"']*)(["'])/gi,
     (_match, quote: string, cls: string) => {
       let next = cls.replace(/\babsolute\b/g, 'fixed');
-      const required = ['reactbits-bg', 'fixed', 'inset-0', 'z-0', 'pointer-events-none'];
+      const required = [
+        'reactbits-bg',
+        'fixed',
+        'inset-0',
+        'z-0',
+        'pointer-events-none',
+      ];
       for (const token of required) {
-        if (!new RegExp(`\\b${token.replace(/[[\]]/g, '\\$&')}\\b`).test(next)) {
+        if (
+          !new RegExp(`\\b${token.replace(/[[\]]/g, '\\$&')}\\b`).test(next)
+        ) {
           next = `${token} ${next}`;
         }
       }
@@ -399,24 +418,30 @@ function fixBareCards(code: string, mode: VisualMode): string {
   const glass = glassSurfaceForMode(mode);
   return code
     .replace(CARD_BARE, `<Card className="${glass} ${CONTAINER_MARGIN}">`)
-    .replace(CARD_BARE_CLOSE, `<Card className="${glass} ${CONTAINER_MARGIN}">`);
+    .replace(
+      CARD_BARE_CLOSE,
+      `<Card className="${glass} ${CONTAINER_MARGIN}">`,
+    );
 }
 
 function fixCards(code: string, mode: VisualMode): string {
-  return code.replace(CARD_OPEN, (match, attrs = '') => {
+  return code.replace(CARD_OPEN, (_match: string, attrs: string = '') => {
     return `<Card${ensureGlassPanel(attrs ?? '', mode)}>`;
   });
 }
 
 /** Forces one visual mode: full dark + light text OR full light + dark text. */
-export function enforceUnifiedVisualMode(code: string, mode: VisualMode): string {
+export function enforceUnifiedVisualMode(
+  code: string,
+  mode: VisualMode,
+): string {
   let fixed = fixReactBitsCanvas(code);
   fixed = normalizeRootShell(fixed, mode);
   fixed = rewriteAllClassNames(fixed, mode);
   fixed = fixBareCards(fixed, mode);
   fixed = fixHeaderNav(fixed, mode);
   fixed = fixButtons(fixed, mode);
-  fixed = fixSectionsAndMain(fixed, mode);
+  fixed = fixSectionsAndMain(fixed);
   fixed = fixCards(fixed, mode);
   fixed = fixHeadings(fixed, mode);
   fixed = fixBodyCopy(fixed, mode);

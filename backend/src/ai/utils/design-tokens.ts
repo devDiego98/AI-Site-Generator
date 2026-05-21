@@ -2,13 +2,12 @@ import type { VisualMode } from './evaluate-ui-design';
 
 /** Opaque fills — never use on cards, sections, headers (glass only). */
 export const SOLID_LIGHT_BG =
-  /\b(?:bg-white|bg-slate-50|bg-stone-50|bg-gray-50|bg-zinc-50)(?![\/\w-])/;
+  /\b(?:bg-white|bg-slate-50|bg-stone-50|bg-gray-50|bg-zinc-50)(?![/\w-])/;
 
 export const SOLID_DARK_BG =
-  /\b(?:bg-slate-950|bg-slate-900|bg-\[#020617\]|bg-black)(?![\/\w-])/;
+  /\b(?:bg-slate-950|bg-slate-900|bg-\[#020617\]|bg-black)(?![/\w-])/;
 
-export const SOLID_BOX_BG =
-  /\b(?:bg-white|bg-black)(?![\/\d\w-])/;
+export const SOLID_BOX_BG = /\b(?:bg-white|bg-black)(?![/\d\w-])/;
 
 /** ShadCN semantic backgrounds that render as solid boxes in preview. */
 export const OPAQUE_SEMANTIC_BG =
@@ -59,11 +58,9 @@ export const NAV_MAX_WIDTH = 'w-[calc(100%-2rem)] max-w-[1120px]';
 export const NAV_ZONE_LAYOUT = 'justify-between gap-4';
 
 /** Floating centered pill navbar — not full-width edge-to-edge. */
-export const DARK_NAVBAR_SURFACE =
-  `fixed top-5 left-1/2 -translate-x-1/2 z-[100] ${NAV_MAX_WIDTH} flex h-[52px] items-center ${NAV_ZONE_LAYOUT} rounded-full px-5 whitespace-nowrap backdrop-blur-[20px] saturate-[160%] bg-[#141414]/65 border border-white/10`;
+export const DARK_NAVBAR_SURFACE = `fixed top-5 left-1/2 -translate-x-1/2 z-[100] ${NAV_MAX_WIDTH} flex h-[52px] items-center ${NAV_ZONE_LAYOUT} rounded-full px-5 whitespace-nowrap backdrop-blur-[20px] saturate-[160%] bg-[#141414]/65 border border-white/10`;
 
-export const LIGHT_NAVBAR_SURFACE =
-  `fixed top-5 left-1/2 -translate-x-1/2 z-[100] ${NAV_MAX_WIDTH} flex h-[52px] items-center ${NAV_ZONE_LAYOUT} rounded-full px-5 whitespace-nowrap backdrop-blur-[20px] saturate-[160%] bg-white/65 border border-black/[0.08]`;
+export const LIGHT_NAVBAR_SURFACE = `fixed top-5 left-1/2 -translate-x-1/2 z-[100] ${NAV_MAX_WIDTH} flex h-[52px] items-center ${NAV_ZONE_LAYOUT} rounded-full px-5 whitespace-nowrap backdrop-blur-[20px] saturate-[160%] bg-white/65 border border-black/[0.08]`;
 
 export function hasSolidLightBackground(classStr: string): boolean {
   return SOLID_LIGHT_BG.test(classStr);
@@ -103,7 +100,7 @@ function stripContrastingCtaSurfaces(code: string): string {
     .replace(/<button\b[^>]*>/gi, '<button>')
     .replace(
       /<(?:a|span)\b[^>]*className=(?:"([^"]*)"|'([^']*)')[^>]*>/gi,
-      (match, dbl, sgl) => {
+      (match: string, dbl?: string, sgl?: string) => {
         const cls = dbl ?? sgl ?? '';
         const contrasting =
           (/\bbg-white\b/.test(cls) &&
@@ -123,11 +120,11 @@ export function countSolidBoxSurfaces(code: string): number {
   const withoutCtas = stripContrastingCtaSurfaces(code);
   const withoutRoot = withoutCtas.replace(
     /(<div\s+)className=(?:"([^"]*)"|'([^']*)')/,
-    (match, prefix, dbl, sgl) => {
+    (match: string, prefix: string, dbl?: string, sgl?: string) => {
       const cls = dbl ?? sgl ?? '';
       if (/\bmin-h-screen\b/.test(cls) && ROOT_SHELL_BG.test(cls)) {
         const cleaned = cls
-          .replace(/\bbg-white(?![\/\d\w-])/g, '')
+          .replace(/\bbg-white(?![/\d\w-])/g, '')
           .replace(/\bbg-slate-50\b/g, '')
           .replace(/\bbg-slate-950\b/g, '')
           .replace(ROOT_SHELL_BG, '')
@@ -140,7 +137,7 @@ export function countSolidBoxSurfaces(code: string): number {
     },
   );
   const matches = withoutRoot.match(
-    /\bbg-white(?![\/\d\w-])|\bbg-black(?![\/\d\w-])|\bbg-slate-50\b|\bbg-slate-950\b|\bbg-stone-50\b|\bbg-card(?![\/\d\w-])|\bbg-background(?![\/\d\w-])|\bbg-muted(?![\/\d\w-])/g,
+    /\bbg-white(?![/\d\w-])|\bbg-black(?![/\d\w-])|\bbg-slate-50\b|\bbg-slate-950\b|\bbg-stone-50\b|\bbg-card(?![/\d\w-])|\bbg-background(?![/\d\w-])|\bbg-muted(?![/\d\w-])/g,
   );
   return matches?.length ?? 0;
 }
