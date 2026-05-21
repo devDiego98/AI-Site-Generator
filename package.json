@@ -1,0 +1,9 @@
+{
+  "name": "ai-ui-builder",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "packages/types"
+  ]
+}

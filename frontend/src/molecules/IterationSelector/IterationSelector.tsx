@@ -45,9 +45,16 @@ export function IterationSelector({
             (v) => v.type === 'modification',
           ).length
 
+          const initial = iteration.versions[0]
+          const preview = initial?.instruction
+            ? initial.instruction.length > 48
+              ? `${initial.instruction.slice(0, 48)}…`
+              : initial.instruction
+            : 'Regenerated variant'
+
           return (
             <option key={iteration.id} value={iteration.id}>
-              Iteration {index + 1} · {formatDate(iteration.createdAt)}
+              #{index + 1} {preview} · {formatDate(iteration.createdAt)}
               {modCount > 0
                 ? ` · ${modCount} mod${modCount === 1 ? '' : 's'}`
                 : ''}

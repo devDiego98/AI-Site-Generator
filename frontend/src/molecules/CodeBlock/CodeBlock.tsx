@@ -1,6 +1,7 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Button } from '@/atoms/Button'
 import { Icon } from '@/atoms/Icon'
+import { highlightTsxCode } from '@/utils/highlightCode'
 import styles from './CodeBlock.module.css'
 
 export interface CodeBlockProps {
@@ -9,6 +10,7 @@ export interface CodeBlockProps {
 
 export function CodeBlock({ code }: CodeBlockProps) {
   const [copied, setCopied] = useState(false)
+  const highlighted = useMemo(() => highlightTsxCode(code), [code])
 
   const handleCopy = useCallback(async () => {
     try {
@@ -34,7 +36,10 @@ export function CodeBlock({ code }: CodeBlockProps) {
         </Button>
       </div>
       <pre className={styles.pre}>
-        <code className={styles.code}>{code}</code>
+        <code
+          className={styles.code}
+          dangerouslySetInnerHTML={{ __html: highlighted }}
+        />
       </pre>
     </div>
   )

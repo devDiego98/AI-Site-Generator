@@ -1,0 +1,28 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    ports:
+      - '3000:3000'
+    environment:
+      PORT: 3000
+      CORS_ORIGIN: http://localhost:5173
+      AI_PROVIDER: groq
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-meta-llama/llama-4-scout-17b-16e-instruct}
+      PEXELS_API_KEY: ${PEXELS_API_KEY:-}
+    env_file:
+      - path: ./backend/.env
+        required: false
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3000
+    ports:
+      - '5173:80'
+    depends_on:
+      - backend

@@ -22,6 +22,7 @@ import {
   saveProjects,
 } from '@/utils/projectStorage'
 import type { ViewMode } from '@/types/viewMode'
+import type { VisualStyle } from '@/types/visualStyle'
 
 function createVersion(
   instruction: string,
@@ -76,6 +77,8 @@ export function useBuilderState() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isRegenerating, setIsRegenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [visualStyle, setVisualStyle] = useState<VisualStyle>('auto')
+  const [previewError, setPreviewError] = useState<string | null>(null)
 
   useEffect(() => {
     saveProjects(projects)
@@ -107,6 +110,10 @@ export function useBuilderState() {
 
   const code = activeVersion?.code ?? null
   const hasActiveProject = Boolean(activeProject && code)
+
+  useEffect(() => {
+    setPreviewError(null)
+  }, [activeVersionId, code])
   const canModify = hasActiveProject
   const showEditorColumn = isEditorOpen
   const isCreatingNew = isEditorOpen && !activeProjectId
@@ -175,14 +182,14 @@ export function useBuilderState() {
     setIsGenerating(true)
 
     try {
-      const generated = await generateUi(trimmed)
+      const generated = await generateUi(trimmed, visualStyle)
       startProject(trimmed, generated.code)
     } catch (err) {
-      reportGenerationError(err, showToast)
+      reportGenerationError(err, showToast, setError)
     } finally {
       setIsGenerating(false)
     }
-  }, [prompt, showToast, startProject])
+  }, [prompt, visualStyle, showToast, startProject])
 
   const runModification = useCallback(async () => {
     const trimmed = prompt.trim()
@@ -210,7 +217,7 @@ export function useBuilderState() {
       )
       setPrompt('')
     } catch (err) {
-      reportModificationError(err, showToast)
+      reportModificationError(err, showToast, setError)
     } finally {
       setIsGenerating(false)
     }
@@ -229,10 +236,14 @@ export function useBuilderState() {
     }
 
     setError(null)
+    setPreviewError(null)
     setIsRegenerating(true)
 
     try {
-      const generated = await generateUi(activeProject.initialPrompt)
+      const generated = await generateUi(
+        activeProject.initialPrompt,
+        visualStyle,
+      )
       const version = createVersion(
         activeProject.initialPrompt,
         generated.code,
@@ -261,11 +272,11 @@ export function useBuilderState() {
       setViewMode('preview')
       showToast('New iteration generated')
     } catch (err) {
-      reportGenerationError(err, showToast)
+      reportGenerationError(err, showToast, setError)
     } finally {
       setIsRegenerating(false)
     }
-  }, [activeProject, showToast])
+  }, [activeProject, visualStyle, showToast])
 
   const selectProject = useCallback(
     (projectId: string) => {
@@ -384,6 +395,10 @@ export function useBuilderState() {
     isGenerating,
     isRegenerating,
     error,
+    visualStyle,
+    setVisualStyle,
+    previewError,
+    setPreviewError,
     hasActiveProject,
     canModify,
     canRegenerate,

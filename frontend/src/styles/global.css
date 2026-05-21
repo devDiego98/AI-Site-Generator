@@ -38,6 +38,34 @@ textarea {
   resize: vertical;
 }
 
+/* Syntax highlighting (code panel) */
+.hl-keyword {
+  color: #c792ea;
+}
+.hl-string {
+  color: #c3e88d;
+}
+.hl-tag {
+  color: #82aaff;
+}
+.hl-comment {
+  color: #546e7a;
+  font-style: italic;
+}
+
+[data-theme='light'] .hl-keyword {
+  color: #7c3aed;
+}
+[data-theme='light'] .hl-string {
+  color: #15803d;
+}
+[data-theme='light'] .hl-tag {
+  color: #1d4ed8;
+}
+[data-theme='light'] .hl-comment {
+  color: #64748b;
+}
+
 :focus-visible {
   outline: 2px solid var(--color-border-focus);
   outline-offset: 2px;

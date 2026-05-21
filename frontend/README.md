@@ -1,55 +1,34 @@
 # Frontend — AI UI Builder
 
-React + TypeScript UI with **Atomic Design** architecture.
+React + Vite app for the AI UI Builder challenge.
 
-## Run
-
-```bash
-npm install
-npm run dev
-```
-
-Open http://localhost:5173
-
-## Atomic structure
+## Layout
 
 ```txt
 src/
-├── styles/          # Design tokens (palette) + global CSS
-├── atoms/           # Button, Text, Textarea, Tab, Spinner, Badge, Icon
-├── molecules/       # PromptField, GenerateActions, TabGroup, CodeBlock, ViewModeToggle
-├── organisms/       # PromptPanel, OutputPanel, PreviewFrame, AppHeader
-├── templates/       # BuilderLayout (header + two-column shell)
-├── pages/           # BuilderPage
-├── hooks/           # useBuilderState
-├── services/        # generateUiApi → POST /generate-ui
-├── utils/           # buildPreviewHtml (iframe sandbox)
-└── types/
+├── pages/BuilderPage/       # Main builder (sidebar + editor + output)
+├── organisms/
+│   ├── ProjectsSidebar/     # Project list and history
+│   ├── EditorPanel/         # Prompt, style, regenerate, modifications
+│   ├── OutputPanel/         # Preview / code, breakpoints, error banner
+│   └── PreviewFrame/        # Sandboxed iframe
+├── hooks/useBuilderState.ts # Projects, generate, modify, regenerate
+├── services/generateUiApi.ts
+└── utils/buildPreviewHtml.ts
 ```
 
-## Color palette
+Legacy `PromptPanel` / `HistoryPanel` were removed; history lives in `ProjectsSidebar` and `EditorPanel`.
 
-Defined in `src/styles/tokens.css` — **Midnight Aurora**:
+## Commands
 
-- **Primary** — Indigo scale (`--palette-primary-*`)
-- **Accent** — Cyan highlights (`--palette-accent-*`)
-- **Neutrals** — Slate surfaces and text
-- **Semantic** — `--color-bg-*`, `--color-text-*`, `--color-accent`
+```bash
+npm run dev      # Dev server (builds preview IIFEs first)
+npm run build    # Production build
+npm run test     # Vitest
+```
 
 ## Environment
 
-```bash
-cp .env.example .env
-# VITE_API_URL=http://localhost:3000
-```
+`VITE_API_URL` — backend base URL (see `frontend/.env.example`).
 
-Requires the NestJS backend running with a valid `AI_API_KEY`.
-
-## Behavior
-
-- Left: prompt textarea, Generate / Regenerate → `POST /generate-ui`
-- Right: **Preview** | **Code** toggle
-- Preview: sandboxed iframe (React + Tailwind via CDN, Babel in iframe)
-- Code: TSX returned by the backend
-
-See [root README](../README.md) for full challenge plan.
+Architecture details: [`../docs/Frontend-README.md`](../docs/Frontend-README.md).

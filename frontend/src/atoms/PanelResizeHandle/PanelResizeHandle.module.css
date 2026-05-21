@@ -1,0 +1,33 @@
+.handle {
+  flex-shrink: 0;
+  width: 6px;
+  margin: 0 -3px;
+  cursor: col-resize;
+  position: relative;
+  z-index: 2;
+  touch-action: none;
+}
+
+.handle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: var(--color-border-subtle);
+  transition: background var(--transition-fast);
+}
+
+.handle:hover::after,
+.handle:active::after {
+  background: var(--palette-primary-500);
+  width: 2px;
+}
+
+@media (max-width: 1100px) {
+  .handle {
+    display: none;
+  }
+}

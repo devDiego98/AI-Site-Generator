@@ -21,7 +21,9 @@ import {
   DEFAULT_MAX_AI_FIX_ATTEMPTS,
   runAiUiFixLoop,
 } from './utils/ai-ui-fix-loop';
+import { augmentPromptWithVisualStyle } from './utils/visual-style-prompt';
 import { prepareUiCode } from './utils/validate-ui-code';
+import type { VisualStyle } from '../common/types/generated-ui';
 
 @Injectable()
 export class AiService {
@@ -39,11 +41,18 @@ export class AiService {
     }
   }
 
-  async generateUiCode(userPrompt: string): Promise<string> {
+  async generateUiCode(
+    userPrompt: string,
+    visualStyle?: VisualStyle,
+  ): Promise<string> {
     const variation = createGenerationVariation();
+    const styledPrompt = augmentPromptWithVisualStyle(
+      userPrompt,
+      visualStyle,
+    );
     return this.completeUiRequest(
       UI_GENERATION_SYSTEM_PROMPT,
-      augmentUserPromptForGeneration(userPrompt, variation),
+      augmentUserPromptForGeneration(styledPrompt, variation),
       'generate',
       userPrompt,
       variation,

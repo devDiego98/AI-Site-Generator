@@ -1,6 +1,6 @@
-export interface GeneratedUi {
-  id: string;
-  prompt: string;
-  code: string;
-  createdAt: string;
-}
+export type {
+  GeneratedUi,
+  GenerateUiRequest,
+  ModifyUiRequest,
+  VisualStyle,
+} from '@ai-ui-builder/types';

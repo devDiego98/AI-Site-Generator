@@ -1,15 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { AiService } from '../ai/ai.service';
-import type { GeneratedUi } from '../common/types/generated-ui';
+import type {
+  GeneratedUi,
+  VisualStyle,
+} from '../common/types/generated-ui';
 
 @Injectable()
 export class GenerateUiService {
   constructor(private readonly aiService: AiService) {}
 
-  async generate(prompt: string): Promise<GeneratedUi> {
+  async generate(
+    prompt: string,
+    visualStyle?: VisualStyle,
+  ): Promise<GeneratedUi> {
     const trimmedPrompt = prompt.trim();
-    const code = await this.aiService.generateUiCode(trimmedPrompt);
+    const code = await this.aiService.generateUiCode(
+      trimmedPrompt,
+      visualStyle,
+    );
 
     return {
       id: randomUUID(),

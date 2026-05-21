@@ -20,6 +20,9 @@ const PARSER_PLUGINS: ParserPlugin[] = ['jsx'];
 
 const ROOT_COMPONENT_NAMES = ['GeneratedApp', 'GeneratedPage'] as const;
 
+/** Upper bound for generated UI payload size (sanitization / DoS guard). */
+export const MAX_GENERATED_CODE_LENGTH = 100_000;
+
 const UNSAFE_PATTERNS: Array<{ pattern: RegExp; message: string }> = [
   { pattern: /<script\b/i, message: 'script tags are not allowed' },
   {
@@ -308,6 +311,13 @@ export function validateUiCode(code: string): ValidateUiCodeResult {
   const trimmed = migrateToGeneratedApp(code.trim());
   if (!trimmed) {
     return { valid: false, error: 'UI code is empty' };
+  }
+
+  if (trimmed.length > MAX_GENERATED_CODE_LENGTH) {
+    return {
+      valid: false,
+      error: `Generated UI code exceeds maximum length (${MAX_GENERATED_CODE_LENGTH} characters)`,
+    };
   }
 
   const unsafeReason = checkUnsafePatterns(trimmed);

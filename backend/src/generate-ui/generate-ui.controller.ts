@@ -10,7 +10,7 @@ export class GenerateUiController {
 
   @Post('generate-ui')
   generate(@Body() dto: GenerateUiDto): Promise<GeneratedUi> {
-    return this.generateUiService.generate(dto.prompt);
+    return this.generateUiService.generate(dto.prompt, dto.visualStyle);
   }
 
   @Post('modify-ui')

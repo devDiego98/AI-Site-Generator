@@ -1,4 +1,4 @@
-import type { GeneratedUi } from '@/types/generatedUi'
+import type { GeneratedUi, VisualStyle } from '@/types/generatedUi'
 
 export class GenerateUiApiError extends Error {
   readonly statusCode?: number
@@ -68,8 +68,14 @@ async function postJson<T>(path: string, payload: unknown): Promise<T> {
   return response.json() as Promise<T>
 }
 
-export function generateUi(prompt: string): Promise<GeneratedUi> {
-  return postJson<GeneratedUi>('/generate-ui', { prompt })
+export function generateUi(
+  prompt: string,
+  visualStyle?: VisualStyle,
+): Promise<GeneratedUi> {
+  return postJson<GeneratedUi>('/generate-ui', {
+    prompt,
+    ...(visualStyle && visualStyle !== 'auto' ? { visualStyle } : {}),
+  })
 }
 
 export function modifyUi(

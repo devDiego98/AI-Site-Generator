@@ -1,7 +1,12 @@
-import { Text } from "@/atoms/Text";
-import styles from "./AppHeader.module.css";
+import { Button } from '@/atoms/Button'
+import { Icon } from '@/atoms/Icon'
+import { Text } from '@/atoms/Text'
+import { useTheme } from '@/hooks/useTheme'
+import styles from './AppHeader.module.css'
 
 export function AppHeader() {
+  const { theme, toggleTheme } = useTheme()
+
   return (
     <header className={styles.header}>
       <div className={styles.brand}>
@@ -16,7 +21,20 @@ export function AppHeader() {
         <a href="/debug" className={styles.debugLink}>
           Debug components
         </a>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={toggleTheme}
+          leftIcon={
+            <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={16} />
+          }
+          aria-label={
+            theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
+          }
+        >
+          {theme === 'dark' ? 'Light' : 'Dark'}
+        </Button>
       </div>
     </header>
-  );
+  )
 }

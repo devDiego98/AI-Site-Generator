@@ -6,6 +6,7 @@ import styles from './PreviewFrame.module.css'
 
 export interface PreviewFrameProps {
   previewHtml: string
+  onRenderError?: (detail: { message: string; stack?: string }) => void
 }
 
 function isPreviewErrorMessage(data: unknown): data is { message: string; stack?: string } {
@@ -17,7 +18,10 @@ function isPreviewErrorMessage(data: unknown): data is { message: string; stack?
   )
 }
 
-export function PreviewFrame({ previewHtml }: PreviewFrameProps) {
+export function PreviewFrame({
+  previewHtml,
+  onRenderError,
+}: PreviewFrameProps) {
   const { showToast } = useToast()
   const lastReportedKey = useRef<string | null>(null)
 
@@ -35,15 +39,17 @@ export function PreviewFrame({ previewHtml }: PreviewFrameProps) {
       }
       lastReportedKey.current = key
 
-      reportPreviewRenderError(
-        { message: event.data.message, stack: event.data.stack },
-        showToast,
-      )
+      const detail = {
+        message: event.data.message,
+        stack: event.data.stack,
+      }
+      onRenderError?.(detail)
+      reportPreviewRenderError(detail, showToast)
     }
 
     window.addEventListener('message', onMessage)
     return () => window.removeEventListener('message', onMessage)
-  }, [previewHtml, showToast])
+  }, [previewHtml, showToast, onRenderError])
 
   return (
     <iframe

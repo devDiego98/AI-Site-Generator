@@ -202,10 +202,30 @@ ${getPreviewErrorRenderScript()}
     ${SHADCN_PREVIEW_THEME_DARK}
     ${REACTBITS_PREVIEW_STYLES}
     ${PREVIEW_ERROR_DISPLAY_STYLES}
-    html, body, #root { min-height: 100vh; height: 100%; margin: 0; }
+    html, body, #root {
+      width: 100%;
+      min-height: 100vh;
+      height: 100%;
+      margin: 0;
+      overflow-x: hidden;
+    }
   </style>
 </head>
 <body>
+  <script>
+    (function syncPreviewViewport() {
+      function apply() {
+        var width = document.documentElement.clientWidth || window.innerWidth;
+        if (!width) return;
+        var meta = document.querySelector('meta[name="viewport"]');
+        if (meta) {
+          meta.setAttribute('content', 'width=' + width + ', initial-scale=1');
+        }
+      }
+      apply();
+      window.addEventListener('resize', apply);
+    })();
+  </script>
   <div id="root"></div>
   <script type="text/babel" data-presets="react">
 ${shadcnRuntime}

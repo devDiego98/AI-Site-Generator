@@ -14,6 +14,10 @@ export function BuilderPage() {
     isGenerating,
     isRegenerating,
     error,
+    visualStyle,
+    setVisualStyle,
+    previewError,
+    setPreviewError,
     canModify,
     canRegenerate,
     showEditorColumn,
@@ -69,6 +73,9 @@ export function BuilderPage() {
                 revertToVersion(activeProjectId, versionId)
               }
             }}
+            visualStyle={visualStyle}
+            onVisualStyleChange={setVisualStyle}
+            showStyleSelector={isCreatingNew || !canModify}
           />
         ) : undefined
       }
@@ -79,6 +86,11 @@ export function BuilderPage() {
           code={code}
           previewKey={activeVersionId}
           isGenerating={isGenerating || isRegenerating}
+          previewError={previewError}
+          onPreviewError={setPreviewError}
+          onRegenerate={
+            canRegenerate ? () => void runRegenerate() : undefined
+          }
         />
       }
     />

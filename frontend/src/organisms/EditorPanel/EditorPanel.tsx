@@ -1,5 +1,7 @@
 import { PromptFieldWithAction } from '@/molecules/PromptFieldWithAction'
+import { StyleSelector } from '@/molecules/StyleSelector'
 import { InitialPromptBar } from '@/molecules/InitialPromptBar'
+import type { VisualStyle } from '@/types/visualStyle'
 import { IterationSelector } from '@/molecules/IterationSelector'
 import { ModificationsList } from '@/organisms/ModificationsList'
 import { Text } from '@/atoms/Text'
@@ -23,6 +25,9 @@ export interface EditorPanelProps {
   onRegenerate: () => void
   onSelectIteration: (iterationId: string) => void
   onRevertToVersion: (versionId: string) => void
+  visualStyle: VisualStyle
+  onVisualStyleChange: (style: VisualStyle) => void
+  showStyleSelector: boolean
 }
 
 export function EditorPanel({
@@ -42,6 +47,9 @@ export function EditorPanel({
   onRegenerate,
   onSelectIteration,
   onRevertToVersion,
+  visualStyle,
+  onVisualStyleChange,
+  showStyleSelector,
 }: EditorPanelProps) {
   const versions = activeIteration?.versions ?? []
   const isBusy = isGenerating || isRegenerating
@@ -74,6 +82,14 @@ export function EditorPanel({
               from this point, or revert to another version below.
             </Text>
           </div>
+        ) : null}
+
+        {showStyleSelector ? (
+          <StyleSelector
+            value={visualStyle}
+            onChange={onVisualStyleChange}
+            disabled={isBusy}
+          />
         ) : null}
 
         <PromptFieldWithAction

@@ -11,9 +11,36 @@
   min-height: 0;
 }
 
-@media (max-width: 900px) {
+.panelColumn {
+  flex-shrink: 0;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.outputColumn {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+
+@media (max-width: 1100px) {
   .body {
     flex-direction: column;
     overflow: auto;
+  }
+
+  .panelColumn {
+    width: 100% !important;
+    flex-basis: auto !important;
+    flex-shrink: 1;
+    height: auto;
+  }
+
+  .outputColumn {
+    flex: 1;
+    min-height: 50vh;
   }
 }

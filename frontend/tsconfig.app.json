@@ -22,7 +22,8 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@ai-ui-builder/types": ["../packages/types/generated-ui.ts"]
     }
   },
   "include": ["src"],

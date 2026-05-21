@@ -11,6 +11,9 @@ export type IconName =
   | 'copy'
   | 'check'
   | 'trash'
+  | 'alert'
+  | 'sun'
+  | 'moon'
 
 const paths: Record<IconName, ReactNode> = {
   sparkles: (
@@ -65,6 +68,20 @@ const paths: Record<IconName, ReactNode> = {
       <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
     </>
   ),
+  alert: (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
+    </>
+  ),
+  sun: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+    </>
+  ),
+  moon: <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />,
 }
 
 export interface IconProps extends SVGAttributes<SVGSVGElement> {

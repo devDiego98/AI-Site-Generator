@@ -112,3 +112,22 @@
   --transition-fast: 150ms ease;
   --transition-base: 200ms ease;
 }
+
+/* Light shell theme (preview iframe unchanged) */
+[data-theme='light'] {
+  --color-bg-app: var(--palette-neutral-100);
+  --color-bg-panel: var(--palette-neutral-0);
+  --color-bg-elevated: var(--palette-neutral-50);
+  --color-bg-input: var(--palette-neutral-0);
+  --color-bg-canvas: var(--palette-neutral-100);
+  --color-bg-code: var(--palette-neutral-900);
+
+  --color-border-subtle: var(--palette-neutral-200);
+  --color-border-default: var(--palette-neutral-300);
+  --color-border-strong: var(--palette-neutral-400);
+
+  --color-text-primary: var(--palette-neutral-900);
+  --color-text-secondary: var(--palette-neutral-600);
+  --color-text-muted: var(--palette-neutral-500);
+  --color-text-inverse: var(--palette-neutral-0);
+}

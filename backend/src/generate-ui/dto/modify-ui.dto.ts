@@ -10,5 +10,8 @@ export class ModifyUiDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(20)
+  @MaxLength(100_000, {
+    message: 'currentCode must be at most 100000 characters',
+  })
   currentCode: string;
 }

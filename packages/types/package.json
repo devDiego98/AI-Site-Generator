@@ -1,0 +1,9 @@
+{
+  "name": "@ai-ui-builder/types",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./generated-ui.ts"
+  }
+}
