@@ -2,8 +2,6 @@
 
 Simplified v0-style app: describe a UI in natural language, the NestJS backend calls an AI provider, and the React frontend renders the result in a sandboxed iframe preview.
 
-Full challenge spec: [`Challenge.md`](./Challenge.md). Gap tracking: [`MissingFromChallenge.md`](./MissingFromChallenge.md).
-
 ---
 
 ## Stack
@@ -176,16 +174,14 @@ Deeper docs: [`docs/Frontend-README.md`](./docs/Frontend-README.md), [`docs/Back
 ## Known limitations
 
 - Projects are **client-only** (`localStorage`, ~5MB quota).
-- Long AI calls have no cancel/abort yet.
-- No streaming or step-by-step progress UI.
-- `/debug` route ships in all builds (gate behind env for production).
-- Docker images expect a root `npm install` workspace layout.
+- Long AI calls have no cangress UI.
+- No streaming or step-by-step pro (gate behind env for production).
 
 ---
 
 ## Future improvements
 
-See [`FUTURE-FEATURES.md`](./FUTURE-FEATURES.md) and [`TECH-DEBT.md`](./TECH-DEBT.md). Highlights:
+Highlights:
 
 - Streaming tokens and generation step progress  
 - Cloud persistence and shareable preview links  
