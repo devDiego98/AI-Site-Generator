@@ -1,7 +1,4 @@
-/**
- * ReactBits Background Site Generator — layout archetypes, scroll animations, intentional images.
- * Body: reactbits-site-generator.prompt.body.md — run: node scripts/build-reactbits-site-prompt.mjs
- */
+/** ReactBits site generator design standards for AI UI generation. */
 export const REACTBITS_SITE_GENERATOR_PROMPT = `
 # ReactBits Background Site Generator — System Prompt
 
@@ -743,32 +740,4 @@ Single \`export default function GeneratedApp\`. Include:
 10. Footer: simple, dark/muted, links in columns
 `.trim();
 
-/** @deprecated Alias for imports that expect UI_DESIGN_STANDARDS */
 export const UI_DESIGN_STANDARDS = REACTBITS_SITE_GENERATOR_PROMPT;
-
-/** Installed globals — dark theme backgrounds */
-export const DARK_THEME_REACTBITS = [
-  'Aurora',
-  'LiquidEther',
-  'LightRays',
-  'Hyperspeed',
-  'DarkVeil',
-  'Galaxy',
-  'Particles',
-  'GridScan',
-  'Plasma',
-  'LaserFlow',
-  'PrismaticBurst',
-] as const;
-
-/** Installed globals — light theme backgrounds */
-export const LIGHT_THEME_REACTBITS = [
-  'SoftAurora',
-  'FloatingLines',
-  'Grainient',
-  'Threads',
-  'DotGrid',
-  'Iridescence',
-  'Ribbons',
-  'LightPillar',
-] as const;

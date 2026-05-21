@@ -1,15 +1,10 @@
 import { ToastProvider } from '@/contexts/ToastContext'
-import { usePathname } from '@/hooks/usePathname'
-import { BuilderPage, ComponentDebugPage } from '@/pages'
-
-const DEBUG_ROUTE = '/debug'
+import { BuilderPage } from '@/pages'
 
 function App() {
-  const pathname = usePathname()
-
   return (
     <ToastProvider>
-      {pathname === DEBUG_ROUTE ? <ComponentDebugPage /> : <BuilderPage />}
+      <BuilderPage />
     </ToastProvider>
   )
 }

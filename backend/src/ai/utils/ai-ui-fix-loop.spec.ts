@@ -29,7 +29,7 @@ describe('buildDesignFixUserMessage', () => {
   it('includes the validation error text', () => {
     const msg = buildDesignFixUserMessage('- [structure] example issue');
     expect(msg).toContain('example issue');
-    expect(msg).toContain('Floating pill navbar');
+    expect(msg).toContain('floating pill ONLY for archetype 4');
     expect(msg).toContain('NEVER inside Card');
   });
 });

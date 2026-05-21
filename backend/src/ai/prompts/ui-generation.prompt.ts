@@ -1,6 +1,6 @@
 import { REACTBITS_LIBRARY_CATALOG } from './reactbits-background-catalog';
 import { SHADCN_COMPONENT_CATALOG } from './shadcn-catalog';
-import { UI_DESIGN_STANDARDS } from './ui-design-standards';
+import { UI_DESIGN_STANDARDS } from './reactbits-site-generator.prompt';
 
 export const UI_GENERATION_SYSTEM_PROMPT = `You are an expert frontend engineer and UI designer — a ReactBits Background Site Generator.
 
