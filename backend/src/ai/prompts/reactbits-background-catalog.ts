@@ -106,33 +106,34 @@ Dark pages ONLY: Aurora, LiquidEther, LightRays, Hyperspeed, DarkVeil, Galaxy, P
 Light pages ONLY: SoftAurora, FloatingLines, Grainient, Threads, DotGrid, Iridescence, Ribbons, LightPillar
 Never cross lists. Hero/full-page: pick one; tune color props only.
 
-=== PAGE SHELL — cinematic minimal ===
+=== PAGE SHELL ===
 Light example:
 <div className="relative min-h-screen overflow-hidden bg-[#f5f5f2] text-[#111111]">
   <div className="reactbits-bg fixed inset-0 z-0 pointer-events-none"><SoftAurora /></div>
   <div className="relative z-[1] min-h-screen">
-    <nav className="fixed top-5 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-2rem)] max-w-[1120px] flex h-[52px] items-center justify-between gap-4 rounded-full px-5 backdrop-blur-[20px] bg-white/65 border border-black/[0.08]">{/* logo | flex-1 center links | Sign up CTA right */}</nav>
-    <section className="min-h-[100svh] flex flex-col items-center justify-center text-center pt-20">{/* bare hero — NO Card */}</section>
-    <section className="py-[clamp(5rem,10vw,9rem)] px-[clamp(1rem,5vw,4rem)] max-w-[1120px] mx-auto">{/* h2 + glass Cards */}</section>
+    <nav className="sticky top-0 z-[100] w-full border-b bg-background/80 backdrop-blur-md">{/* full-width — archetypes 1/2/3/5/6/7 */}</nav>
+    <section className="min-h-screen">{/* hero per layout archetype — NO Card around headline */}</section>
+    <section className="py-[clamp(5rem,10vw,9rem)] px-6 max-w-[1200px] mx-auto">{/* useInView motion + glass Cards */}</section>
   </div>
 </div>
 
-Dark example:
+Dark example (archetype 4 — pill nav only):
 <div className="relative min-h-screen overflow-hidden bg-[#0d0d0d] text-[#f0f0f0]">
   <div className="reactbits-bg fixed inset-0 z-0 pointer-events-none"><Aurora /></div>
   <div className="relative z-[1] min-h-screen">
-    <nav className="fixed top-5 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-2rem)] max-w-[1120px] flex h-[52px] items-center justify-between gap-4 rounded-full px-5 backdrop-blur-[20px] bg-[#141414]/65 border border-white/10">{/* logo | flex-1 center links | Sign up CTA right */}</nav>
+    <nav className="fixed top-5 left-1/2 -translate-x-1/2 z-[100] rounded-full px-5 h-[52px] backdrop-blur-xl border border-white/10">{/* pill — archetype 4 only */}</nav>
     <section className="min-h-[100svh] flex flex-col items-center justify-center text-center pt-20">{/* bare hero */}</section>
-    <section className="py-[clamp(5rem,10vw,9rem)] px-[clamp(1rem,5vw,4rem)] max-w-[1120px] mx-auto">{/* glass Cards only */}</section>
+    <section className="py-[clamp(5rem,10vw,9rem)] px-6 max-w-[1200px] mx-auto">{/* glass Cards, scroll animations */}</section>
   </div>
 </div>
 
 Rules:
 - reactbits-bg: fixed inset-0 z-0 pointer-events-none
-- Floating pill navbar — NOT full-width header bar
-- Hero: min-h-[100svh], headline bare on background — never inside Card
-- Content sections: transparent, no backdrop-blur on <section>
-- Cards only: backdrop-blur-[14px] rounded-[14px] shadow-none; no nested Cards
+- Navbar: full-width sticky for archetypes 1/2/3/5/6/7; floating pill ONLY for archetype 4
+- Hero: match archetype from design standards; headline never inside Card
+- Sections: transparent, no backdrop-blur on <section>; Framer Motion useInView below hero
+- Cards only: bg-card/60 backdrop-blur-[14px] shadow-none; no nested Cards
+- Images: Unsplash ?w=&q=80, explicit height, layout patterns — never stacked full-width
 - SoftAurora bandHeight is internal — never pass bandHeight in generated JSX
 `.trim();
 

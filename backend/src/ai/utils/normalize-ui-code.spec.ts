@@ -64,4 +64,15 @@ export default GeneratedApp;`;
 
     expect(normalizeUiCode(input)).toBe(input);
   });
+
+  it('strips orphan ref={ref} without useRef', () => {
+    const input = `export default function GeneratedApp() {
+  return (
+    <section id="schedule" ref={ref} className="py-8">Agenda</section>
+  );
+}`;
+    const result = normalizeUiCode(input);
+    expect(result).not.toContain('ref={ref}');
+    expect(result).toContain('id="schedule"');
+  });
 });

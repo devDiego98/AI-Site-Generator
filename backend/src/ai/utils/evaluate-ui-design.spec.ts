@@ -162,6 +162,36 @@ describe('evaluateUiDesign', () => {
     expect(result.passed).toBe(true);
   });
 
+  it('passes full-width sticky navbar (archetypes 1/2/3/5/6/7)', () => {
+    const code = `export default function GeneratedApp() {
+  return (
+    <div className="relative min-h-screen bg-[#0d0d0d] text-[#f0f0f0]">
+      <div className="reactbits-bg fixed inset-0 z-0 pointer-events-none"><Aurora /></div>
+      <div className="relative z-[1]">
+        <nav className="sticky top-0 z-[100] w-full border-b bg-background/80 backdrop-blur-md">
+          <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-8 px-6">
+            <span className="shrink-0 font-bold">Logo</span>
+            <div className="hidden md:flex flex-1 items-center justify-center gap-6" />
+            <button type="button" className="shrink-0 rounded-full bg-white text-[#111111] px-5">Get started</button>
+          </div>
+        </nav>
+        <section className="min-h-screen flex items-center justify-center">
+          <h1 className="text-4xl font-bold">Fleet logistics</h1>
+        </section>
+        <section className="py-16 px-6 max-w-[1200px] mx-auto">
+          <Card className="bg-card/60 backdrop-blur-[14px] shadow-none p-5"><p>Feature</p></Card>
+        </section>
+      </div>
+    </div>
+  );
+}`;
+    const result = evaluateUiDesign(code);
+    expect(result.passed).toBe(true);
+    expect(
+      result.issues.some((i) => i.message.includes('floating centered pill')),
+    ).toBe(false);
+  });
+
   it('fails when a content section uses card-style glass', () => {
     const result = evaluateUiDesign(SECTION_WRAPPED_IN_GLASS);
     expect(result.passed).toBe(false);

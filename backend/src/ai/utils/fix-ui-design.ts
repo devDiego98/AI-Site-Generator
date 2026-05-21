@@ -17,6 +17,10 @@ import {
   hasLightSolidBackground,
 } from './contrast-utils';
 import {
+  fixMergedJsxTagAttributes,
+  formatOpenTagAttrs,
+} from './jsx-tag-utils';
+import {
   evaluateUiDesign,
   inferVisualModeFromCode,
   type DesignEvaluation,
@@ -172,18 +176,34 @@ function normalizeRootShell(code: string, mode: VisualMode): string {
 function appendClasses(attrs: string, toAdd: string): string {
   const additions = toAdd.trim();
   if (!additions) {
-    return attrs;
+    return formatOpenTagAttrs(attrs);
   }
 
-  const classMatch = attrs.match(/className=(?:"([^"]*)"|'([^']*)')/);
+  const normalized = formatOpenTagAttrs(attrs);
+  const classMatch = normalized.match(/className=(?:"([^"]*)"|'([^']*)')/);
   if (classMatch) {
-    const quote = attrs.includes('className="') ? '"' : "'";
+    const quote = normalized.includes('className="') ? '"' : "'";
     const existing = classMatch[1] ?? classMatch[2] ?? '';
     const merged = `${existing} ${additions}`.trim().replace(/\s+/g, ' ');
-    return attrs.replace(classMatch[0], `className=${quote}${merged}${quote}`);
+    return normalized.replace(
+      classMatch[0],
+      `className=${quote}${merged}${quote}`,
+    );
   }
 
-  return `${attrs} className="${additions}"`;
+  return `${normalized} className="${additions}"`;
+}
+
+/** Strip layout glass from className value only — never trim attr leading space. */
+function stripLayoutSurfaceFromAttrs(attrs: string): string {
+  const classMatch = attrs.match(/className=(?:"([^"]*)"|'([^']*)')/);
+  if (!classMatch) {
+    return attrs;
+  }
+  const quote = attrs.includes('className="') ? '"' : "'";
+  const raw = classMatch[1] ?? classMatch[2] ?? '';
+  const stripped = stripLayoutSurfaceClasses(raw);
+  return attrs.replace(classMatch[0], `className=${quote}${stripped}${quote}`);
 }
 
 function hasMarginUtility(classStr: string): boolean {
@@ -201,7 +221,7 @@ function hasSpacingUtility(classStr: string): boolean {
 /** Remove card-style surfaces from layout wrappers (sections/main). */
 export function stripLayoutSurfaceClasses(cls: string): string {
   let next = cls
-    .replace(/\bbackdrop-blur[-\w]*/g, '')
+    .replace(/\bbackdrop-blur(?:-\[[^\]]+\]|-[a-zA-Z0-9]+)?/g, '')
     .replace(/\bsaturate-\[[^\]]+\]/g, '')
     .replace(/\bbg-white\/\d+/g, '')
     .replace(/\bbg-\[#f2f2ef\]\/\d+/g, '')
@@ -258,7 +278,7 @@ function fixHeadings(code: string, mode: VisualMode): string {
       }
     }
 
-    return `<${tag}${nextAttrs}>`;
+    return `<${tag}${formatOpenTagAttrs(nextAttrs)}>`;
   });
 }
 
@@ -273,7 +293,7 @@ function fixBodyCopy(code: string, mode: VisualMode): string {
       }
       const addition =
         mode === 'dark' ? 'text-white/55' : 'text-black/55';
-      return `<${tag}${appendClasses(attrs, addition)}>`;
+      return `<${tag}${formatOpenTagAttrs(appendClasses(attrs, addition))}>`;
     });
   }
   return fixed;
@@ -281,7 +301,7 @@ function fixBodyCopy(code: string, mode: VisualMode): string {
 
 function fixSectionsAndMain(code: string, _mode: VisualMode): string {
   let fixed = code.replace(SECTION_OPEN, (match, attrs = '') => {
-    let next = stripLayoutSurfaceClasses(attrs ?? '');
+    let next = stripLayoutSurfaceFromAttrs(attrs ?? '');
     if (!/\bpy-/.test(next)) {
       next = appendClasses(
         next,
@@ -291,11 +311,11 @@ function fixSectionsAndMain(code: string, _mode: VisualMode): string {
     if (!hasMarginUtility(next) && !hasSpacingUtility(next)) {
       next = appendClasses(next, CONTAINER_MARGIN);
     }
-    return `<section${next.startsWith(' ') ? next : ` ${next}`}>`;
+    return `<section${formatOpenTagAttrs(next)}>`;
   });
   fixed = fixed.replace(MAIN_OPEN, (match, attrs = '') => {
-    const next = stripLayoutSurfaceClasses(ensureLayoutInsets(attrs ?? ''));
-    return `<main${next.startsWith(' ') ? next : ` ${next}`}>`;
+    const next = stripLayoutSurfaceFromAttrs(ensureLayoutInsets(attrs ?? ''));
+    return `<main${formatOpenTagAttrs(next)}>`;
   });
   return fixed;
 }
@@ -319,7 +339,7 @@ function fixButtons(code: string, mode: VisualMode): string {
         mode === 'dark'
           ? 'rounded-full bg-white text-[#111111] font-semibold min-h-[44px]'
           : 'rounded-full bg-[#111111] text-white font-semibold min-h-[44px]';
-      return `<button${appendClasses(attrs, fill)}>`;
+      return `<button${formatOpenTagAttrs(appendClasses(attrs, fill))}>`;
     }
     const quote = attrs.includes('className="') ? '"' : "'";
     const raw = classMatch[1] ?? classMatch[2] ?? '';
@@ -335,8 +355,10 @@ function fixHeaderNav(code: string, mode: VisualMode): string {
   const navBar = mode === 'dark' ? DARK_NAVBAR_SURFACE : LIGHT_NAVBAR_SURFACE;
 
   let fixed = code.replace(HEADER_OPEN, (match, attrs = '') => {
-    const stripped = stripLayoutSurfaceClasses(attrs ?? '');
-    return `<header${appendClasses(ensureNavLayoutClasses(stripped), navBar)}>`;
+    const stripped = stripLayoutSurfaceFromAttrs(attrs ?? '');
+    return `<header${formatOpenTagAttrs(
+      appendClasses(ensureNavLayoutClasses(stripped), navBar),
+    )}>`;
   });
 
   fixed = fixed.replace(NAV_OPEN, (match, attrs = '') => {
@@ -344,12 +366,14 @@ function fixHeaderNav(code: string, mode: VisualMode): string {
       mode === 'dark'
         ? 'text-white/50 hover:text-[#f0f0f0]'
         : 'text-black/50 hover:text-[#111111]';
-    const stripped = stripLayoutSurfaceClasses(attrs ?? '');
+    const stripped = stripLayoutSurfaceFromAttrs(attrs ?? '');
     const withLayout = ensureNavLayoutClasses(stripped);
     if (/left-1\/2/.test(withLayout)) {
-      return `<nav${appendClasses(withLayout, linkColor)}>`;
+      return `<nav${formatOpenTagAttrs(appendClasses(withLayout, linkColor))}>`;
     }
-    return `<nav${appendClasses(appendClasses(withLayout, navBar), linkColor)}>`;
+    return `<nav${formatOpenTagAttrs(
+      appendClasses(appendClasses(withLayout, navBar), linkColor),
+    )}>`;
   });
 
   return fixed;
@@ -396,7 +420,7 @@ export function enforceUnifiedVisualMode(code: string, mode: VisualMode): string
   fixed = fixCards(fixed, mode);
   fixed = fixHeadings(fixed, mode);
   fixed = fixBodyCopy(fixed, mode);
-  return fixed;
+  return fixMergedJsxTagAttributes(fixed);
 }
 
 /** Applies safe, deterministic design fixes before evaluation. */

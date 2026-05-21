@@ -196,7 +196,10 @@ export function evaluateUiDesign(code: string): DesignEvaluation {
   let cardsWithoutGlass = 0;
   while ((cardMatch = CARD_TAG.exec(code)) !== null) {
     const cls = classString(cardMatch[1] ?? '');
-    if (!hasGlassSurface(cls) && /\b(?:bg-card|bg-background|bg-white(?![\/])|bg-slate)\b/.test(cls)) {
+    if (
+      !hasGlassSurface(cls) &&
+      /\b(?:bg-card(?![\/])|bg-background(?![\/])|bg-white(?![\/])|bg-slate)\b/.test(cls)
+    ) {
       cardsWithoutGlass += 1;
     }
   }
@@ -261,37 +264,40 @@ export function evaluateUiDesign(code: string): DesignEvaluation {
     });
   }
 
-  const navOpen = code.match(/<nav\b([^>]*)>/i);
-  if (navOpen) {
-    const navCls = classString(navOpen[1] ?? '');
-    if (!/\bmax-w-/.test(navCls)) {
-      issues.push({
-        category: 'structure',
-        severity: 'error',
-        message:
-          'Navbar must use max-w-[1120px] (with w-[calc(100%-2rem)]) — constrain header width, not edge-to-edge.',
-      });
-    }
-    if (!/\bjustify-between\b/.test(navCls)) {
-      issues.push({
-        category: 'structure',
-        severity: 'error',
-        message:
-          'Navbar must use justify-between with three zones: logo on the left, nav links centered (wrap in flex-1 justify-center), Sign up / Login / avatar CTA on the right.',
-      });
-    }
-  }
-
-  if (
-    /<(?:header|nav)\b[^>]*\bw-full\b/i.test(code) &&
-    !/left-1\/2|-translate-x-1\/2|rounded-full/.test(code)
-  ) {
-    issues.push({
-      category: 'structure',
-      severity: 'warning',
-      message:
-        'Navbar should be a floating centered pill (fixed top-5 left-1/2 -translate-x-1/2 rounded-full) — not a full-width bar.',
+  const navBlock = code.match(/<nav\b([^>]*)>([\s\S]*?)<\/nav>/i);
+  if (navBlock) {
+    const navCls = classString(navBlock[1] ?? '');
+    const navInner = navBlock[2] ?? '';
+    const isPillNav =
+      /\brounded-full\b/.test(navCls) &&
+      /(?:left-1\/2|-translate-x-1\/2)/.test(navCls);
+    const innerBars = [...navInner.matchAll(/<div\b([^>]*)>/gi)];
+    const layoutBar = innerBars.find((m) => {
+      const cls = classString(m[1] ?? '');
+      return /\bmax-w-/.test(cls) || /\bjustify-between\b/.test(cls);
     });
+    const barCls = isPillNav
+      ? navCls
+      : layoutBar
+        ? `${navCls} ${classString(layoutBar[1] ?? '')}`
+        : navCls;
+
+    if (!/\bmax-w-/.test(barCls)) {
+      issues.push({
+        category: 'structure',
+        severity: 'error',
+        message:
+          'Navbar must constrain content width (max-w-[1120px] on nav or inner flex row) — logo left, links center, CTA right.',
+      });
+    }
+    if (!/\bjustify-between\b/.test(barCls)) {
+      issues.push({
+        category: 'structure',
+        severity: 'error',
+        message:
+          'Navbar must use justify-between with three zones: logo on the left, nav links centered (flex-1 justify-center), Sign up / Login / avatar CTA on the right.',
+      });
+    }
   }
 
   const heroH1InCard = /<Card[^>]*>[\s\S]*?<h1\b/i.test(code);
@@ -340,8 +346,8 @@ export function evaluateUiDesign(code: string): DesignEvaluation {
 
   if (visualMode === 'dark') {
     if (
-      !/\btext-\[#efefef\]\b/.test(code) &&
-      !/\btext-\[#f0f0f0\]\b/.test(code) &&
+      !/text-\[#efefef\]/.test(code) &&
+      !/text-\[#f0f0f0\]/.test(code) &&
       !/\btext-white\b/.test(code) &&
       !/\btext-slate-(?:50|100|200)\b/.test(code)
     ) {
@@ -369,7 +375,7 @@ export function evaluateUiDesign(code: string): DesignEvaluation {
 
   if (visualMode === 'light') {
     if (
-      !/\btext-\[#111111\]\b/.test(code) &&
+      !/text-\[#111111\]/.test(code) &&
       !/\btext-slate-900\b/.test(code) &&
       !/\btext-slate-800\b/.test(code)
     ) {
@@ -423,8 +429,8 @@ export function evaluateUiDesign(code: string): DesignEvaluation {
     if (
       visualMode === 'dark' &&
       DARK_ON_DARK_TEXT.test(cls) &&
-      !/\btext-\[#efefef\]\b/.test(cls) &&
-      !/\btext-\[#f0f0f0\]\b/.test(cls)
+      !/text-\[#efefef\]/.test(cls) &&
+      !/text-\[#f0f0f0\]/.test(cls)
     ) {
       issues.push({
         category: 'typography',

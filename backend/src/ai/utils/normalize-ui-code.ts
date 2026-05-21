@@ -1,3 +1,6 @@
+import { stripOrphanRefAttributes } from './fix-orphan-ref';
+import { fixMergedJsxTagAttributes } from './jsx-tag-utils';
+
 const COMPONENT_MARKER =
   /(?:export\s+default\s+)?(?:function\s+Generated(?:App|Page)|const\s+Generated(?:App|Page)\s*=\s*(?:\([^)]*\)\s*=>|[^=]+=>))/;
 
@@ -109,7 +112,9 @@ export function migrateToGeneratedApp(code: string): string {
 }
 
 export function normalizeUiCode(code: string): string {
-  const trimmed = migrateToGeneratedApp(code.trim());
+  const trimmed = stripOrphanRefAttributes(
+    fixMergedJsxTagAttributes(migrateToGeneratedApp(code.trim())),
+  );
   if (!trimmed) {
     return '';
   }

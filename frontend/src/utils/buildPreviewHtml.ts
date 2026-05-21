@@ -3,6 +3,7 @@ import {
   SHADCN_PREVIEW_THEME_DARK,
   SHADCN_TAILWIND_CONFIG,
 } from '@/preview/shadcnRuntime'
+import { getFramerMotionGlobalBindingsScript } from '@/preview/framerMotionGlobalNames'
 import { getReactBitsGlobalBindingsScript } from '@/preview/reactBitsGlobalNames'
 import { PREVIEW_NAVIGATION_GUARD_SCRIPT } from '@/preview/previewNavigationGuard'
 import { REACTBITS_PREVIEW_STYLES } from '@/preview/reactBitsPreviewStyles'
@@ -24,8 +25,22 @@ function resolveComponentName(source: string): string {
   return functionMatch?.[1] ?? constMatch?.[1] ?? 'GeneratedApp'
 }
 
+const PREVIEW_REACT_HOOKS_PRELUDE =
+  'const { useState, useEffect, useRef, useMemo, useCallback } = React;\n'
+
+/** Removes ref={ref} when ref was never defined (common AI mistake). */
+function stripOrphanRefAttributes(source: string): string {
+  if (!/\bref=\{ref\}/.test(source)) {
+    return source
+  }
+  if (/\b(?:const|let|var)\s+ref\s*=\s*(?:useRef|React\.useRef)\s*\(/.test(source)) {
+    return source
+  }
+  return source.replace(/\s*ref=\{ref\}/g, '')
+}
+
 function prepareComponentSource(code: string): string {
-  let source = code.trim()
+  let source = stripOrphanRefAttributes(code.trim())
 
   source = source.replace(/^import\s+.+from\s+['"].+['"];?\s*/gm, '')
   source = source.replace(/export\s+default\s+function\s+(\w+)/, 'function $1')
@@ -38,6 +53,10 @@ function prepareComponentSource(code: string): string {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(React.createElement(${componentName}));
 `
+  }
+
+  if (!/^const\s*\{\s*useRef/.test(source)) {
+    source = PREVIEW_REACT_HOOKS_PRELUDE + source
   }
 
   return source
@@ -60,6 +79,9 @@ export function buildPreviewHtml(code: string, options: PreviewHtmlOptions = {})
   const shadcnRuntime = escapeScriptContent(getShadcnRuntimeScript())
   const componentSource = escapeScriptContent(prepareComponentSource(code))
   const reactBitsBindings = escapeScriptContent(getReactBitsGlobalBindingsScript())
+  const framerMotionBindings = escapeScriptContent(
+    getFramerMotionGlobalBindingsScript(),
+  )
   const assetsBaseUrl = resolveAssetsBaseUrl(options)
 
   const reactBitsBlock = assetsBaseUrl
@@ -68,6 +90,10 @@ export function buildPreviewHtml(code: string, options: PreviewHtmlOptions = {})
   <script src="${assetsBaseUrl}/react-bits-preview.iife.js"></script>
   <script>
 ${reactBitsBindings}
+  </script>
+  <script src="${assetsBaseUrl}/framer-motion-preview.iife.js"></script>
+  <script>
+${framerMotionBindings}
   </script>
 `
     : `  <script>

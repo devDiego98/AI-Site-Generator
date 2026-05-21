@@ -8,6 +8,7 @@ export type VisualMode = 'light' | 'dark';
 export interface GenerationProfile {
   visualMode: VisualMode;
   archetype: string;
+  layoutArchetype: string;
   pageStrategy: string;
   navigation: string;
   heroStyle: string;
@@ -31,6 +32,17 @@ const HERO_PATTERNS = [
   'minimal typographic hero — no image, strong headline + single CTA',
   'bento-style hero — asymmetric grid of headline, stats, and image tiles',
   'product showcase hero — device mockup or feature image dominates',
+] as const;
+
+/** Layout archetypes 1–7 from reactbits-site-generator design standards */
+const LAYOUT_ARCHETYPE_LABELS = [
+  '1 — Editorial Magazine (full-width nav, full-bleed hero image below fold)',
+  '2 — Split Hero Dashboard (Recharts live card in hero right column)',
+  '3 — Centered Cinematic (floating UI cards around centered headline)',
+  '4 — Minimal Cinematic (floating pill nav, bare hero on background)',
+  '5 — Bento Grid (asymmetric feature card grid)',
+  '6 — Scroll Narrative (sticky left image, scrolling feature copy right)',
+  '7 — Magazine Hero with Tabs (hero + tabbed product views)',
 ] as const;
 
 const LAYOUT_TWISTS = [
@@ -161,6 +173,44 @@ export function inferVisualMode(prompt: string): VisualMode {
   }
 
   return hashPrompt(prompt) % 2 === 0 ? 'light' : 'dark';
+}
+
+function inferLayoutArchetype(
+  prompt: string,
+  inferredArchetype: string,
+  variation?: GenerationVariation,
+): string {
+  const text = prompt.toLowerCase();
+  const byTopic: Record<string, number> = {
+    'finance-product': 2,
+    'dashboard-app': 2,
+    'telecom-service': 1,
+    'maker-academy': 1,
+    'pricing-focus': 5,
+    'saas-product': 5,
+    'creative-portfolio': 4,
+    'event-experience': 6,
+    'course-offering': 7,
+    'single-screen': 3,
+  };
+  const idx = byTopic[inferredArchetype];
+  if (idx != null) {
+    return LAYOUT_ARCHETYPE_LABELS[idx - 1] ?? LAYOUT_ARCHETYPE_LABELS[0];
+  }
+  if (/\b(logistics|fleet|enterprise|infrastructure|b2b)\b/i.test(text)) {
+    return LAYOUT_ARCHETYPE_LABELS[0];
+  }
+  if (/\b(fintech|analytics|dashboard|data platform|developer tool)\b/i.test(text)) {
+    return LAYOUT_ARCHETYPE_LABELS[1];
+  }
+  if (/\b(ai tool|creative tool|minimal)\b/i.test(text)) {
+    return LAYOUT_ARCHETYPE_LABELS[3];
+  }
+  const pool = LAYOUT_ARCHETYPE_LABELS;
+  if (variation) {
+    return pickFromVariationPool(pool, variation, 14);
+  }
+  return pool[hashPrompt(prompt) % pool.length] ?? pool[0];
 }
 
 function inferArchetype(
@@ -345,13 +395,22 @@ export function buildGenerationProfile(
   const inferred = inferArchetype(prompt, variation);
   const heroStyle = pickVariant(prompt, HERO_PATTERNS, 0, variation);
 
+  const layoutArchetype = inferLayoutArchetype(
+    prompt,
+    inferred.archetype,
+    variation,
+  );
+
   const layoutNotes: string[] = [
+    `Layout archetype: ${layoutArchetype} — follow navbar rules (pill nav ONLY for archetype 4).`,
     `Visual mode: ${visualMode} — ${
       visualMode === 'light'
-        ? 'bg-[#f5f5f2]; SoftAurora/FloatingLines/Grainient/Threads/DotGrid/Iridescence only; floating pill navbar; fullscreen bare hero; transparent sections; glass Cards shadow-none'
-        : 'bg-[#0d0d0d]; Aurora/LiquidEther/LightRays/Hyperspeed/Galaxy/Particles only; floating pill navbar; fullscreen bare hero; transparent sections; glass Cards shadow-none'
+        ? 'bg-[#f5f5f2]; SoftAurora/FloatingLines/Grainient/Threads/DotGrid/Iridescence/Ribbons; transparent sections; glass Cards shadow-none'
+        : 'bg-[#0d0d0d]; Aurora/LiquidEther/LightRays/Hyperspeed/Galaxy/Particles/GridScan/DarkVeil; transparent sections; glass Cards shadow-none'
     }`,
     `Hero: ${heroStyle}`,
+    'All sections below hero: Framer Motion useInView scroll animations (fade-up, stagger, or slide-in).',
+    'Images: topic-matched Unsplash with ?w=&q=80, explicit heights, layout patterns only — never stacked full-width images.',
     'Spacing and grid columns should match content (not always 3-column feature grids).',
     'Section order and copy must reflect the exact subject in the user prompt.',
     'Use ReactBits background that fits the subject; tune color props to match light or dark shell.',
@@ -373,6 +432,7 @@ export function buildGenerationProfile(
   return {
     visualMode,
     archetype: inferred.archetype,
+    layoutArchetype,
     pageStrategy: inferred.pageStrategy,
     navigation: inferred.navigation,
     heroStyle,
@@ -391,6 +451,7 @@ export function formatGenerationBrief(profile: GenerationProfile): string {
       ? `Variation ID: ${profile.variationNonce} — this run must look distinct from any prior run, even for the same topic.`
       : null,
     `Archetype: ${profile.archetype}`,
+    `Layout archetype: ${profile.layoutArchetype}`,
     `Pages: ${profile.pageStrategy}`,
     `Navigation: ${profile.navigation}`,
     `Hero: ${profile.heroStyle}`,

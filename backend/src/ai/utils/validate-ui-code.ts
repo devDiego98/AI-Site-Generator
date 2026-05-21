@@ -7,6 +7,8 @@ import type {
   Node,
 } from '@babel/types';
 import { formatDesignEvaluationError } from './evaluate-ui-design';
+import { hasMergedJsxTagAttributes } from './jsx-tag-utils';
+import { hasOrphanRefAttribute } from './fix-orphan-ref';
 import { isTrivialJsx, migrateToGeneratedApp, normalizeUiCode } from './normalize-ui-code';
 import { runDesignQualityPipeline } from './fix-ui-design';
 
@@ -262,6 +264,10 @@ function checkStructuralPatterns(code: string): string | null {
     return jsxIssue;
   }
 
+  if (hasMergedJsxTagAttributes(returnJsx)) {
+    return 'JSX tags must have a space before attributes (use <nav className="..."> not <navclassName="...">)';
+  }
+
   const nestedFunctionInJsx = /\{function\s+\w+\s*\(/;
   if (nestedFunctionInJsx.test(code)) {
     return 'Do not declare nested components inside JSX — put all UI directly in GeneratedApp return';
@@ -275,6 +281,10 @@ function checkStructuralPatterns(code: string): string | null {
   const componentCallInJsx = /\{\s*[A-Za-z_$][\w$]*\s*\(\s*\)\s*\}/;
   if (componentCallInJsx.test(returnJsx)) {
     return 'Do not call nested components in JSX (e.g. {App()}) — render UI directly in GeneratedApp';
+  }
+
+  if (hasOrphanRefAttribute(code)) {
+    return 'ref={ref} is used without const ref = useRef(null) — define ref with useRef before using it, or remove ref={ref}';
   }
 
   return null;

@@ -12,7 +12,7 @@ import {
  */
 function getShadcnBaseRuntimeScript(): string {
   return `
-const { useState, useEffect, createContext, useContext } = React;
+const { useState, useEffect, useRef, createContext, useContext } = React;
 
 function cn(...inputs) {
   return inputs.filter(Boolean).join(' ');

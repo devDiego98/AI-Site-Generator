@@ -53,6 +53,7 @@ root.render(React.createElement(GeneratedApp));`
 <body>
   <div id="root"></div>
   <script src="${assetsBaseUrl}/react-bits-preview.iife.js"></script>
+  <script src="${assetsBaseUrl}/framer-motion-preview.iife.js"></script>
   <script>
 (function () {
   if (typeof globalThis.Aurora === 'undefined') {

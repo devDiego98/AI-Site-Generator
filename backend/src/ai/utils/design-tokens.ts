@@ -87,6 +87,8 @@ export function hasGlassSurface(classStr: string): boolean {
     /\bbackdrop-blur/.test(classStr) &&
     (/\bbg-white\/[1-9]\d?\b/.test(classStr) ||
       /\bbg-black\/[1-9]\d?\b/.test(classStr) ||
+      /\bbg-card\/[1-9]\d?\b/.test(classStr) ||
+      /\bbg-background\/[1-9]\d?\b/.test(classStr) ||
       /\bbg-transparent\b/.test(classStr))
   );
 }
@@ -138,7 +140,7 @@ export function countSolidBoxSurfaces(code: string): number {
     },
   );
   const matches = withoutRoot.match(
-    /\bbg-white(?![\/\d\w-])|\bbg-black(?![\/\d\w-])|\bbg-slate-50\b|\bbg-slate-950\b|\bbg-stone-50\b|\bbg-card\b|\bbg-background\b|\bbg-muted\b/g,
+    /\bbg-white(?![\/\d\w-])|\bbg-black(?![\/\d\w-])|\bbg-slate-50\b|\bbg-slate-950\b|\bbg-stone-50\b|\bbg-card(?![\/\d\w-])|\bbg-background(?![\/\d\w-])|\bbg-muted(?![\/\d\w-])/g,
   );
   return matches?.length ?? 0;
 }

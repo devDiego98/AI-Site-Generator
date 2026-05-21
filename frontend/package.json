@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "npm run build:preview-runtime && vite",
     "build": "npm run build:preview-runtime && tsc -b && vite build",
-    "build:preview-runtime": "vite build --config vite.preview.config.ts",
+    "build:preview-runtime": "vite build --config vite.preview.config.ts && vite build --config vite.framer-preview.config.ts",
     "sync:reactbits": "node ../scripts/sync-reactbits-backgrounds.mjs && node ../scripts/generate-reactbits-ai.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -17,6 +17,7 @@
     "@react-three/fiber": "^9.6.1",
     "@react-three/postprocessing": "^3.0.4",
     "face-api.js": "^0.22.2",
+    "framer-motion": "^12.40.0",
     "gsap": "^3.15.0",
     "ogl": "^1.0.11",
     "postprocessing": "^6.39.1",

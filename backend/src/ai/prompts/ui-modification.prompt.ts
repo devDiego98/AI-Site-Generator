@@ -24,7 +24,7 @@ Rules:
 - When the user asks to change, swap, or randomize the background (the effect/component) without naming a specific ReactBits component, replace the background with a different component from the full catalog — do not default to SoftAurora or Ribbons.
 - When the user asks to change background colors, palette, hue, or tint: KEEP the same ReactBits background component and update ONLY its color-related props — never swap to a different background component.
 - When polishing or redesigning, upgrade backgrounds to a ReactBits component that fits the content theme — never leave pages flat and never keep a mismatched background after a theme/industry change.
-- Preserve cinematic minimal layout: floating pill navbar, bare hero on background, transparent sections, glass leaf Cards only — never section wrappers, hero-in-Card, or nested Cards.
+- Preserve layout archetype rules from design standards: full-width navbar except archetype 4 (pill only); bare hero on background (never hero-in-Card); transparent sections; glass leaf Cards only; scroll animations with useInView; intentional image layouts with explicit heights — never stacked full-width images or nested Cards.
 - ReactBits canvas: fixed inset-0 z-0 pointer-events-none; content wrapper relative z-[1].
 - Background props: pass ONLY color-related props (palette, hue, gradients); never override speed, size, density, counts, or other non-color defaults.
 - Use ShadCN for UI primitives, Lucide icons from the catalog (Check, Star, etc. — no imports), and ReactBits for backgrounds; include ChartContainer and Recharts when charts are requested.
