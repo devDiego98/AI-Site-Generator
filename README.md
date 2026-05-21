@@ -1,3 +1,7 @@
+
+
+https://github.com/user-attachments/assets/f06d6331-53e1-4c32-afdc-e9e78cbd2488
+
 # AI UI Builder
 
 Simplified v0-style app: describe a UI in natural language, the NestJS backend calls an AI provider, and the React frontend renders the result in a sandboxed iframe preview.
