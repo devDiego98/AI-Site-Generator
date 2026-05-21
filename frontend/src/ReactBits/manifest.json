@@ -5,7 +5,6 @@
     "Iridescence",
     "Threads",
     "Particles",
-    "Ribbons",
     "Orb",
     "Hyperspeed",
     "GridScan",
@@ -15,7 +14,6 @@
     "Plasma",
     "PlasmaWave",
     "Prism",
-    "PrismaticBurst",
     "Galaxy",
     "PixelSnow",
     "DarkVeil",
@@ -65,13 +63,6 @@
     {
       "name": "Particles",
       "containerClass": "particles-container",
-      "deps": [
-        "ogl@^1.0.11"
-      ]
-    },
-    {
-      "name": "Ribbons",
-      "containerClass": "ribbons-container",
       "deps": [
         "ogl@^1.0.11"
       ]
@@ -138,13 +129,6 @@
     {
       "name": "Prism",
       "containerClass": "prism-container",
-      "deps": [
-        "ogl@^1.0.11"
-      ]
-    },
-    {
-      "name": "PrismaticBurst",
-      "containerClass": "prismatic-burst-container",
       "deps": [
         "ogl@^1.0.11"
       ]

@@ -134,4 +134,23 @@ describe('prepareUiCode', () => {
     expect(code).toContain('GeneratedApp');
     expect(code).not.toContain('GeneratedPage');
   });
+
+  it('forModification preserves explicit accent colors without design rewrites', () => {
+    const input = `export default function GeneratedApp() {
+  return (
+    <div className="relative min-h-screen bg-[#0d0d0d] text-[#f0f0f0]">
+      <div className="reactbits-bg fixed inset-0 z-0 pointer-events-none"><Galaxy /></div>
+      <main className="relative z-[1] px-4 py-12">
+        <h1 className="text-4xl font-bold text-green-500">AI Technology Meetup</h1>
+      </main>
+    </div>
+  );
+}`;
+
+    const { code, validation } = prepareUiCode(input, { forModification: true });
+
+    expect(validation.valid).toBe(true);
+    expect(code).toContain('text-green-500');
+    expect(code).toContain('AI Technology Meetup');
+  });
 });

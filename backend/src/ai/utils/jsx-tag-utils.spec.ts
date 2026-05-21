@@ -1,7 +1,9 @@
 import {
   fixMergedJsxTagAttributes,
+  fixShadcnButtonTags,
   formatOpenTagAttrs,
   hasMergedJsxTagAttributes,
+  replaceJsxOpenTags,
 } from './jsx-tag-utils';
 import { enforceUnifiedVisualMode } from './fix-ui-design';
 
@@ -24,6 +26,31 @@ describe('fixMergedJsxTagAttributes', () => {
   });
 });
 
+describe('fixShadcnButtonTags', () => {
+  it('rewrites shadcn props on lowercase button to Button', () => {
+    const input = `<nav>
+      <button variant="ghost" size="sm" className="hidden md:flex">Login</button>
+      <button size="sm" className="rounded-full">Join</button>
+      <button type="button" onClick={() => setPage('home')}>Home</button>
+    </nav>`;
+    const output = fixShadcnButtonTags(input);
+    expect(output).toContain('<Button variant="ghost" size="sm"');
+    expect(output).toContain('<Button size="sm" className="rounded-full">Join</Button>');
+    expect(output).toContain('<button type="button" onClick={() => setPage(\'home\')}>Home</button>');
+  });
+});
+
+describe('replaceJsxOpenTags', () => {
+  it('preserves onClick arrow functions with =>', () => {
+    const input =
+      '<button type="button" onClick={() => setCurrentPage("home")} className="underline">Home</button>';
+    const output = replaceJsxOpenTags(input, 'button', (attrs) => attrs);
+    expect(output).toBe(input);
+    expect(output).toContain('onClick={() => setCurrentPage("home")}');
+    expect(output).not.toMatch(/onClick=\{\(\)\s*=\s*className/);
+  });
+});
+
 describe('formatOpenTagAttrs', () => {
   it('adds leading space when attrs lack it', () => {
     expect(formatOpenTagAttrs('className="foo"')).toBe(' className="foo"');
@@ -31,6 +58,26 @@ describe('formatOpenTagAttrs', () => {
 
   it('preserves existing leading space', () => {
     expect(formatOpenTagAttrs(' className="foo"')).toBe(' className="foo"');
+  });
+});
+
+describe('fixButtons preserves nav onClick handlers', () => {
+  it('does not inject className into onClick when fixing contrast', () => {
+    const code = `export default function GeneratedApp() {
+  const [currentPage, setCurrentPage] = React.useState('home');
+  return (
+    <div className="relative min-h-screen bg-[#0d0d0d] text-[#f0f0f0]">
+      <nav className="flex gap-6">
+        <button type="button" onClick={() => setCurrentPage('home')} className={currentPage === 'home' ? 'underline' : ''}>Home</button>
+        <button type="button" onClick={() => setCurrentPage('agenda')} className={currentPage === 'agenda' ? 'underline' : ''}>Agenda</button>
+      </nav>
+    </div>
+  );
+}`;
+    const fixed = enforceUnifiedVisualMode(code, 'dark');
+    expect(fixed).toContain("onClick={() => setCurrentPage('home')}");
+    expect(fixed).toContain("onClick={() => setCurrentPage('agenda')}");
+    expect(fixed).not.toMatch(/onClick=\{\(\)\s*=\s*className/);
   });
 });
 

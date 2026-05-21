@@ -5,9 +5,10 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import Groq, { RateLimitError } from 'groq-sdk';
 import { UI_GENERATION_SYSTEM_PROMPT } from './prompts/ui-generation.prompt';
 import { UI_MODIFICATION_SYSTEM_PROMPT } from './prompts/ui-modification.prompt';
+import type { AiChatProvider } from './providers/ai-chat-provider.interface';
+import { createAiChatProviderFromEnv } from './providers/ai-provider.factory';
 import { extractUiCode } from './utils/extract-ui-code';
 import {
   applyRandomBackgroundSwap,
@@ -22,43 +23,19 @@ import {
 } from './utils/ai-ui-fix-loop';
 import { prepareUiCode } from './utils/validate-ui-code';
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function rateLimitErrorMessage(error: RateLimitError): string | undefined {
-  if (isRecord(error.error)) {
-    const nested = error.error.error;
-    if (
-      isRecord(nested) &&
-      typeof nested.message === 'string' &&
-      nested.message.length > 0
-    ) {
-      return nested.message;
-    }
-  }
-  return error.message.length > 0 ? error.message : undefined;
-}
-
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
-  private readonly groq: Groq | null;
-  private readonly model: string;
+  private readonly provider: AiChatProvider | null;
 
   constructor(private readonly config: ConfigService) {
-    const apiKey = this.config.get<string>('AI_API_KEY');
-    this.model =
-      this.config.get<string>('AI_MODEL') ??
-      'meta-llama/llama-4-scout-17b-16e-instruct';
-
-    if (!apiKey || apiKey === 'your_api_key_here') {
-      this.groq = null;
+    this.provider = createAiChatProviderFromEnv(config);
+    if (!this.provider) {
       this.logger.warn(
-        'AI_API_KEY is not configured. UI generation will fail until a valid key is set.',
+        'AI provider is not configured. Set AI_PROVIDER and AI_API_KEY in backend/.env',
       );
     } else {
-      this.groq = new Groq({ apiKey });
+      this.logger.log(`AI provider: ${this.provider.id}`);
     }
   }
 
@@ -102,29 +79,21 @@ export class AiService {
     sourcePrompt?: string,
     variation?: ReturnType<typeof createGenerationVariation>,
   ): Promise<string> {
-    if (!this.groq) {
+    if (!this.provider) {
       throw new ServiceUnavailableException(
-        'AI provider is not configured. Set AI_API_KEY in backend/.env',
+        'AI provider is not configured. Set AI_PROVIDER and AI_API_KEY in backend/.env',
       );
     }
 
     try {
-      const completion = await this.groq.chat.completions.create({
-        model: this.model,
-        temperature: operation === 'modify' ? 0.8 : 1,
-        max_tokens: 4096,
+      const raw = await this.provider.complete({
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userContent },
         ],
+        temperature: operation === 'modify' ? 0.35 : 1,
+        maxTokens: 4096,
       });
-
-      const raw = completion.choices[0]?.message?.content?.trim();
-      if (!raw) {
-        throw new BadGatewayException(
-          'AI provider returned an empty response. Try again or adjust your prompt.',
-        );
-      }
 
       const extracted = extractUiCode(raw);
       if (!extracted) {
@@ -133,7 +102,10 @@ export class AiService {
         );
       }
 
-      let { code, validation } = prepareUiCode(extracted);
+      const prepareOptions = {
+        forModification: operation === 'modify',
+      };
+      let { code, validation } = prepareUiCode(extracted, prepareOptions);
 
       if (!validation.valid) {
         this.logger.warn(
@@ -141,11 +113,11 @@ export class AiService {
         );
 
         const fixResult = await runAiUiFixLoop({
-          groq: this.groq,
-          model: this.model,
+          provider: this.provider,
           systemPrompt,
           userContent,
           initialAssistantCode: extracted,
+          forModification: operation === 'modify',
           onAttempt: (attempt, error) => {
             this.logger.warn(
               `AI design fix attempt ${attempt}/${DEFAULT_MAX_AI_FIX_ATTEMPTS} failed:\n${error}`,
@@ -199,16 +171,19 @@ export class AiService {
         throw error;
       }
 
-      if (error instanceof RateLimitError) {
-        const message = rateLimitErrorMessage(error);
-        this.logger.error('Groq rate limit exceeded', message);
+      if (this.provider.isRateLimitError(error)) {
+        const message = this.provider.getErrorMessage(error);
+        this.logger.error(
+          `${this.provider.id} rate limit exceeded`,
+          message,
+        );
         throw new BadGatewayException(
           message ??
             'AI request exceeded rate limits. Wait a moment and try again.',
         );
       }
 
-      this.logger.error('Groq API call failed', error);
+      this.logger.error(`${this.provider.id} API call failed`, error);
       throw new BadGatewayException(
         'Failed to generate UI from the AI provider. Please try again later.',
       );

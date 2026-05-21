@@ -4,7 +4,7 @@ export const REACTBITS_LIBRARY_CATALOG = `
 Animated page backgrounds from reactbits.dev. All components are pre-installed globals — use directly, NO imports, NO inlining, NO third-party background libs.
 
 MANDATORY: Every UI MUST include at least one ReactBits background.
-FORBIDDEN: ColorBends, GridPattern, DotPattern, Spotlight, BackgroundLayer, custom canvas/CSS backgrounds, import statements.
+FORBIDDEN: ColorBends, GridPattern, DotPattern, Spotlight, BackgroundLayer, custom canvas/CSS backgrounds, import statements, PrismaticBurst, Ribbons (removed from library — never use).
 
 === BACKGROUND PROP RULES (strict) ===
 Every ReactBits component ships with built-in default values for ALL props (speed, size, intensity, counts, etc.).
@@ -25,37 +25,36 @@ Selection process:
 
 Theme → background (use when the prompt fits):
 - Fiber optic / telecom / networking / ISP / broadband / data cables / connectivity → Hyperspeed, LaserFlow
-- AI / ML / futuristic tech / startups → Aurora, LiquidEther, PrismaticBurst, LightRays
+- AI / ML / futuristic tech / startups → Aurora, LiquidEther, LightRays, Prism
 - SaaS / B2B software / dashboards / analytics → Hyperspeed, GridScan, DotGrid
 - Finance / fintech / banking → Galaxy, Aurora, DarkVeil
 - Wellness / spa / meditation / yoga → SoftAurora, FloatingLines, Grainient
-- Creative agency / portfolio / design studio → Ribbons, PrismaticBurst, Particles, Iridescence
+- Creative agency / portfolio / design studio → Particles, Iridescence, LiquidEther, SplashCursor
 - Gaming / entertainment → Hyperspeed, PixelSnow, Plasma
 - Space / astronomy / science → Galaxy, Aurora, LightRays
 - Cybersecurity / hacker / dark tech → DarkVeil, GridScan, Hyperspeed
 - Events / conferences / meetups → Aurora, LightRays, LiquidEther
 - Education / courses / learning → Aurora, FloatingLines
 - Healthcare / medical → SoftAurora, FloatingLines (calm, trustworthy)
-- Real estate / luxury / premium brands → LightPillar, PrismaticBurst, Iridescence
-- E-commerce / retail (playful) → Ribbons, SplashCursor, Particles
+- Real estate / luxury / premium brands → LightPillar, Iridescence, Prism, Orb
+- E-commerce / retail (playful) → SplashCursor, Particles, DotGrid
 - Nature / eco / sustainability → Grainient, SoftAurora (green-tinted color props)
-- Music / audio → Ribbons, Orb, PlasmaWave
+- Music / audio → Orb, PlasmaWave, Plasma, LightRays
 
 Fallback by vibe (only when no clear industry match):
-- Hero / landing / premium → LiquidEther, Aurora, PrismaticBurst, LightRays
+- Hero / landing / premium → LiquidEther, Aurora, LightRays, LightPillar
 - Tech / SaaS / dashboard → Hyperspeed, GridScan, LaserFlow
 - Calm / wellness → SoftAurora, FloatingLines, Grainient
-- Playful / creative → Ribbons, Particles, PrismaticBurst
+- Playful / creative → Particles, SplashCursor, PlasmaWave, DotGrid
 - Dark / moody → DarkVeil, Galaxy, Plasma
 - Interactive → LiquidEther, DotGrid, SplashCursor
 
 Built-in defaults per component (from component source — do not repeat non-color props in JSX):
-- Aurora: defaults { colorStops=['#5227FF', '#7cff67', '#5227FF'], amplitude=1.0, blend=0.5 } | color props only: colorStops
+- Aurora: defaults { colorStops=["#5227FF", "#7cff67", "#5227FF"], amplitude=1.0, blend=0.5 } | color props only: colorStops
 - SoftAurora: defaults { speed=0.6, scale=1.5, brightness=1.0, color1='#f7f7f7', color2='#e100ff', noiseFrequency=2.5, noiseAmplitude=1.0, bandHeight=0.5, bandSpread=1.0, octaveDecay=0.1, layerOffset=0, colorSpeed=1.0, enableMouseInteraction=true, mouseInfluence=0.25 } | color props only: color1, color2
 - Iridescence: defaults { color=[1, 1, 1], speed=1.0, amplitude=0.1, mouseReact=true } | color props only: color
 - Threads: defaults { color=[1, 1, 1], amplitude=1, distance=0, enableMouseInteraction=false } | color props only: color
 - Particles: defaults { particleCount=200, particleSpread=10, speed=0.1, moveParticlesOnHover=false, particleHoverFactor=1, alphaParticles=false, particleBaseSize=100, sizeRandomness=1, cameraDistance=20, disableRotation=false, pixelRatio=1 } | color props only: (none — use bare tag)
-- Ribbons: defaults { colors=['#ff9346', '#7cff67', '#ffee51', '#5227FF'], baseSpring=0.03, baseFriction=0.9, baseThickness=30, offsetFactor=0.05, maxAge=500, pointCount=50, speedMultiplier=0.6, enableFade=false, enableShaderEffect=false, effectAmplitude=2, backgroundColor=[0, 0, 0, 0] } | color props only: colors, backgroundColor
 - Orb: defaults { hue=0, hoverIntensity=0.2, rotateOnHover=true, forceHoverState=false, backgroundColor='#000000' } | color props only: hue, backgroundColor
 - Hyperspeed: defaults { (built-in defaults — no props listed) } | color props only: (none — use bare tag)
 - GridScan: defaults { enableWebcam=false, showPreview=false, modelsPath='https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.2/weights', sensitivity=0.55, lineThickness=1, linesColor='#2F293A', scanColor='#FF9FFC', scanOpacity=0.4, gridScale=0.1, lineStyle='solid', lineJitter=0.1, scanDirection='pingpong', enablePost=true, bloomIntensity=0, bloomThreshold=0, bloomSmoothing=0, chromaticAberration=0.002, noiseIntensity=0.01, scanGlow=0.5, scanSoftness=2, scanPhaseTaper=0.9, scanDuration=2.0, scanDelay=2.0, enableGyro=false, scanOnClick=false, snapBackDelay=250 } | color props only: linesColor, scanColor
@@ -65,7 +64,6 @@ Built-in defaults per component (from component source — do not repeat non-col
 - Plasma: defaults { color='#ffffff', speed=1, direction='forward', scale=1, opacity=1, mouseInteractive=true } | color props only: color
 - PlasmaWave: defaults { xOffset=0, yOffset=0, rotationDeg=0, focalLength=0.8, speed1=0.05, speed2=0.05, dir2=1.0, bend1=1, bend2=0.5, colors=['#A855F7', '#06B6D4'] } | color props only: colors
 - Prism: defaults { height=3.5, baseWidth=5.5, animationType='rotate', glow=1, offset={ x: 0, y: 0 }, noise=0.5, transparent=true, scale=3.6, hueShift=0, colorFrequency=1, hoverStrength=2, inertia=0.05, bloom=1, suspendWhenOffscreen=false, timeScale=0.5 } | color props only: hueShift
-- PrismaticBurst: defaults { intensity=2, speed=0.5, animationType='rotate3d', distort=0, paused=false, offset={ x: 0, y: 0 }, hoverDampness=0, mixBlendMode='lighten' }: PrismaticBurstProps) => { const containerRef = useRef<HTMLDivElement>(null); const programRef = useRef<Program | null>(null); const rendererRef = useRef<Renderer | null>(null); const mouseTargetRef = useRef<[number } | color props only: (none — use bare tag)
 - Galaxy: defaults { focal=[0.5, 0.5], rotation=[1.0, 0.0], starSpeed=0.5, density=1, hueShift=140, disableAnimation=false, speed=1.0, mouseInteraction=true, glowIntensity=0.3, saturation=0.0, mouseRepulsion=true, repulsionStrength=2, twinkleIntensity=0.3, rotationSpeed=0.1, autoCenterRepulsion=0, transparent=true } | color props only: hueShift, saturation
 - PixelSnow: defaults { color='#ffffff', flakeSize=0.01, minFlakeSize=1.25, pixelResolution=200, speed=1.25, depthFade=8, farPlane=20, brightness=1, gamma=0.4545, density=0.3, variant='square', direction=125, className='', style={} } | color props only: color
 - DarkVeil: defaults { hueShift=0, noiseIntensity=0, scanlineIntensity=0, speed=0.5, scanlineFrequency=0, warpAmount=0, resolutionScale=1 }: Props) { const ref = useRef<HTMLCanvasElement>(null); useEffect(() => { const canvas = ref.current as HTMLCanvasElement; const parent = canvas.parentElement as HTMLElement; const renderer = new Renderer({ dpr: Math.min(window.devicePixelRatio, 2), canvas }); const gl = renderer.gl; const geometry = new Triangle(gl); const program = new Program(gl, { vertex, fragment, uniforms: { uTime: { value: 0 }, uResolution: { value: new Vec2() }, uHueShift: { value: hueShift }, uNoise: { value: noiseIntensity }, uScan: { value: scanlineIntensity }, uScanFreq: { value: scanlineFrequency }, uWarp: { value: warpAmount } } }); const mesh = new Mesh(gl, { geometry, program }); const resize = () => { const w = parent.clientWidth, h = parent.clientHeight; renderer.setSize(w * resolutionScale, h * resolutionScale); program.uniforms.uResolution.value.set(w, h); }; window.addEventListener('resize', resize); resize(); const start = performance.now(); let frame = 0; const loop = () => { program.uniforms.uTime.value = ((performance.now() - start) / 1000) * speed; program.uniforms.uHueShift.value = hueShift; program.uniforms.uNoise.value = noiseIntensity; program.uniforms.uScan.value = scanlineIntensity; program.uniforms.uScanFreq.value = scanlineFrequency; program.uniforms.uWarp.value = warpAmount; renderer.render({ scene: mesh }); frame = requestAnimationFrame(loop); }; loop(); return () => { cancelAnimationFrame(frame); window.removeEventListener('resize', resize); }; } } | color props only: hueShift
@@ -76,12 +74,11 @@ Built-in defaults per component (from component source — do not repeat non-col
 - SplashCursor: defaults { SIM_RESOLUTION=128, DYE_RESOLUTION=1440, CAPTURE_RESOLUTION=512, DENSITY_DISSIPATION=3.5, VELOCITY_DISSIPATION=2, PRESSURE=0.1, PRESSURE_ITERATIONS=20, CURL=3, SPLAT_RADIUS=0.2, SPLAT_FORCE=6000, SHADING=true, COLOR_UPDATE_SPEED=10, BACK_COLOR={ r: 0.5, g: 0, b: 0 }, TRANSPARENT=true, RAINBOW_MODE=true, COLOR='#ff0000' } | color props only: COLOR
 
 Per-component usage (color props only when customizing palette):
-- Aurora: container .aurora-container — <Aurora colorStops={['#5227FF', '#7cff67', '#5227FF']} />
+- Aurora: container .aurora-container — <Aurora colorStops={["#5227FF", "#7cff67", "#5227FF"]} />
 - SoftAurora: container .soft-aurora-container — <SoftAurora color1={'#f7f7f7'} color2={'#e100ff'} />
 - Iridescence: container .iridescence-container — <Iridescence color={[1, 1, 1]} />
 - Threads: container .threads-container — <Threads color={[1, 1, 1]} />
 - Particles: container .particles-container — <Particles />
-- Ribbons: container .ribbons-container — <Ribbons colors={['#ff9346', '#7cff67', '#ffee51', '#5227FF']} backgroundColor={[0, 0, 0, 0]} />
 - Orb: container .orb-container — <Orb hue={0} backgroundColor={'#000000'} />
 - Hyperspeed: container .hyperspeed-container — <Hyperspeed />
 - GridScan: container .grid-scan-container — <GridScan linesColor={'#2F293A'} scanColor={'#FF9FFC'} />
@@ -91,7 +88,6 @@ Per-component usage (color props only when customizing palette):
 - Plasma: container .plasma-container — <Plasma color={'#ffffff'} />
 - PlasmaWave: container .plasma-wave-container — <PlasmaWave colors={['#A855F7', '#06B6D4']} />
 - Prism: container .prism-container — <Prism hueShift={0} />
-- PrismaticBurst: container .prismatic-burst-container — <PrismaticBurst />
 - Galaxy: container .galaxy-container — <Galaxy hueShift={140} saturation={0.0} />
 - PixelSnow: container .pixel-snow-container — <PixelSnow color={'#ffffff'} />
 - DarkVeil: container .dark-veil-container — <DarkVeil hueShift={0} />
@@ -103,37 +99,31 @@ Per-component usage (color props only when customizing palette):
 
 === THEME-SPECIFIC BACKGROUND PICKS (use with visual mode from GENERATION BRIEF) ===
 Dark pages ONLY: Aurora, LiquidEther, LightRays, Hyperspeed, DarkVeil, Galaxy, Particles, GridScan
-Light pages ONLY: SoftAurora, FloatingLines, Grainient, Threads, DotGrid, Iridescence, Ribbons, LightPillar
+Light pages ONLY: SoftAurora, FloatingLines, Grainient, Threads, DotGrid, Iridescence, LightPillar
 Never cross lists. Hero/full-page: pick one; tune color props only.
 
-=== PAGE SHELL ===
-Light example:
-<div className="relative min-h-screen overflow-hidden bg-[#f5f5f2] text-[#111111]">
-  <div className="reactbits-bg fixed inset-0 z-0 pointer-events-none"><SoftAurora /></div>
-  <div className="relative z-[1] min-h-screen">
-    <nav className="sticky top-0 z-[100] w-full border-b bg-background/80 backdrop-blur-md">{/* full-width — archetypes 1/2/3/5/6/7 */}</nav>
-    <section className="min-h-screen">{/* hero per layout archetype — NO Card around headline */}</section>
-    <section className="py-[clamp(5rem,10vw,9rem)] px-6 max-w-[1200px] mx-auto">{/* useInView motion + glass Cards */}</section>
-  </div>
+=== PAGE SHELL (pick light OR dark from prompt — not always dark) ===
+Place the background ONCE outside page routing — same background for all pages.
+
+Light shell example:
+<div className="relative min-h-screen overflow-hidden bg-slate-50 text-slate-900">
+  <div className="reactbits-bg absolute inset-0 z-0"><SoftAurora color1={'#e0f2fe'} color2={'#a5f3fc'} /></div>
+  <main className="relative z-10">{/* nav + sections */}</main>
 </div>
 
-Dark example (archetype 4 — pill nav only):
-<div className="relative min-h-screen overflow-hidden bg-[#0d0d0d] text-[#f0f0f0]">
-  <div className="reactbits-bg fixed inset-0 z-0 pointer-events-none"><Aurora /></div>
-  <div className="relative z-[1] min-h-screen">
-    <nav className="fixed top-5 left-1/2 -translate-x-1/2 z-[100] rounded-full px-5 h-[52px] backdrop-blur-xl border border-white/10">{/* pill — archetype 4 only */}</nav>
-    <section className="min-h-[100svh] flex flex-col items-center justify-center text-center pt-20">{/* bare hero */}</section>
-    <section className="py-[clamp(5rem,10vw,9rem)] px-6 max-w-[1200px] mx-auto">{/* glass Cards, scroll animations */}</section>
-  </div>
+Dark shell example:
+<div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
+  <div className="reactbits-bg absolute inset-0 z-0"><LiquidEther colors={["#0ea5e9","#6366f1"]} /></div>
+  <main className="relative z-10">{/* nav + sections */}</main>
 </div>
 
-Rules:
-- reactbits-bg: fixed inset-0 z-0 pointer-events-none
-- Navbar: full-width sticky for archetypes 1/2/3/5/6/7; floating pill ONLY for archetype 4
-- Hero: match archetype from design standards; headline never inside Card
-- Sections: transparent, no backdrop-blur on <section>; Framer Motion useInView below hero
-- Cards only: bg-card/60 backdrop-blur-[14px] shadow-none; no nested Cards
-- Images: Unsplash ?w=&q=80, explicit height, layout patterns — never stacked full-width
+Rules for reactbits-bg wrapper:
+- className="reactbits-bg absolute inset-0 z-0" — fills viewport behind content
+- Put exactly ONE background component inside
+- Foreground MUST use relative z-10 (or higher)
+- Light mode: page bg-white/slate-50, cards bg-white border shadow; tune background color props for light surfaces
+- Dark mode: page bg-slate-950/#020617, glass cards bg-white/5 backdrop-blur border-white/10
+- Match shell to GENERATION BRIEF visual mode — wellness/education/healthcare often light; gaming/cyber often dark
 - SoftAurora bandHeight is internal — never pass bandHeight in generated JSX
 `.trim();
 

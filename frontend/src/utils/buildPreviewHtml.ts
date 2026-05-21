@@ -5,6 +5,16 @@ import {
 } from '@/preview/shadcnRuntime'
 import { getFramerMotionGlobalBindingsScript } from '@/preview/framerMotionGlobalNames'
 import { getReactBitsGlobalBindingsScript } from '@/preview/reactBitsGlobalNames'
+import {
+  PREVIEW_ERROR_DISPLAY_STYLES,
+  getPreviewErrorInnerHtml,
+  getPreviewErrorRenderScript,
+} from '@/preview/previewErrorDisplay'
+import {
+  buildPreviewErrorBoundaryScript,
+  PREVIEW_ERROR_REPORTER_SCRIPT,
+} from '@/preview/previewErrorReporter'
+import { fixShadcnButtonTags } from '@/preview/fixShadcnButtonTags'
 import { PREVIEW_NAVIGATION_GUARD_SCRIPT } from '@/preview/previewNavigationGuard'
 import { REACTBITS_PREVIEW_STYLES } from '@/preview/reactBitsPreviewStyles'
 
@@ -39,8 +49,53 @@ function stripOrphanRefAttributes(source: string): string {
   return source.replace(/\s*ref=\{ref\}/g, '')
 }
 
+const IS_IN_VIEW_DEF =
+  /\b(?:const|let|var)\s+isInView\s*=\s*useInView\s*\(/
+
+/** Injects useRef/useInView when isInView is referenced but never defined. */
+function fixOrphanIsInView(source: string): string {
+  if (!/\bisInView\b/.test(source) || IS_IN_VIEW_DEF.test(source)) {
+    return source
+  }
+
+  const hooks = `  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-80px" });
+`
+
+  let result = source.replace(
+    /((?:export\s+default\s+)?function\s+Generated(?:App|Page)\s*\([^)]*\)\s*\{)/,
+    `$1\n${hooks}`,
+  )
+  if (result === source) {
+    result = source.replace(
+      /(const\s+Generated(?:App|Page)\s*=\s*(?:\([^)]*\)\s*)?=>\s*\{)/,
+      `$1\n${hooks}`,
+    )
+  }
+
+  const sectionTag = /<section(\s[^>]*)>/g
+  let match: RegExpExecArray | null
+  while ((match = sectionTag.exec(result)) !== null) {
+    const start = match.index
+    const endTag = result.indexOf('</section>', start)
+    if (endTag === -1) continue
+    const chunk = result.slice(start, endTag)
+    if (!/animate=\{isInView/.test(chunk)) continue
+    if (/\bref=\{ref\}/.test(match[1])) return result
+    const newTag = `<section ref={ref}${match[1]}>`
+    return result.slice(0, start) + newTag + result.slice(start + match[0].length)
+  }
+
+  if (!/\bref=\{ref\}/.test(result)) {
+    result = result.replace(/<section(\s)/, '<section ref={ref}$1')
+  }
+  return result
+}
+
 function prepareComponentSource(code: string): string {
-  let source = stripOrphanRefAttributes(code.trim())
+  let source = fixShadcnButtonTags(
+    fixOrphanIsInView(stripOrphanRefAttributes(code.trim())),
+  )
 
   source = source.replace(/^import\s+.+from\s+['"].+['"];?\s*/gm, '')
   source = source.replace(/export\s+default\s+function\s+(\w+)/, 'function $1')
@@ -49,10 +104,7 @@ function prepareComponentSource(code: string): string {
   const componentName = resolveComponentName(source)
 
   if (!source.includes('ReactDOM.createRoot')) {
-    source += `
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(React.createElement(${componentName}));
-`
+    source += `\n${buildPreviewErrorBoundaryScript(componentName)}\n`
   }
 
   if (!/^const\s*\{\s*useRef/.test(source)) {
@@ -97,7 +149,7 @@ ${framerMotionBindings}
   </script>
 `
     : `  <script>
-document.getElementById('root').innerHTML='<pre style="padding:1rem;color:#b91c1c">Preview assets URL missing.</pre>';
+document.getElementById('root').innerHTML=${JSON.stringify(getPreviewErrorInnerHtml())};
   </script>
 `
 
@@ -107,6 +159,7 @@ document.getElementById('root').innerHTML='<pre style="padding:1rem;color:#b91c1
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script>${escapeScriptContent(PREVIEW_NAVIGATION_GUARD_SCRIPT)}</script>
+  <script>${escapeScriptContent(PREVIEW_ERROR_REPORTER_SCRIPT)}</script>
   <script>window.process=window.process||{env:{NODE_ENV:"production"}};</script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>${SHADCN_TAILWIND_CONFIG}</script>
@@ -126,30 +179,29 @@ document.getElementById('root').innerHTML='<pre style="padding:1rem;color:#b91c1
   </script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script>
+${getPreviewErrorRenderScript()}
+    function showPreviewError(message, stack) {
+      if (typeof window.__reportPreviewError === 'function') {
+        window.__reportPreviewError({ message: message, stack: stack });
+      }
+      renderPreviewErrorInRoot();
+    }
     window.addEventListener('error', function (event) {
-      var root = document.getElementById('root');
-      if (!root || root.childNodes.length > 0) return;
-      root.innerHTML =
-        '<pre style="padding:1rem;color:#b91c1c;font-family:system-ui,sans-serif;white-space:pre-wrap;">' +
-        (event.error && event.error.message ? event.error.message : event.message || 'Preview runtime error') +
-        (event.error && event.error.stack ? '\\n\\n' + event.error.stack : '') +
-        '</pre>';
+      var message = event.error && event.error.message ? event.error.message : event.message || 'Preview runtime error';
+      var stack = event.error && event.error.stack ? event.error.stack : undefined;
+      showPreviewError(message, stack);
     });
     window.addEventListener('unhandledrejection', function (event) {
-      var root = document.getElementById('root');
-      if (!root || root.childNodes.length > 0) return;
       var reason = event.reason;
       var message = reason && reason.message ? reason.message : String(reason);
-      root.innerHTML =
-        '<pre style="padding:1rem;color:#b91c1c;font-family:system-ui,sans-serif;white-space:pre-wrap;">' +
-        message +
-        (reason && reason.stack ? '\\n\\n' + reason.stack : '') +
-        '</pre>';
+      var stack = reason && reason.stack ? reason.stack : undefined;
+      showPreviewError(message, stack);
     });
   </script>
   <style>
     ${SHADCN_PREVIEW_THEME_DARK}
     ${REACTBITS_PREVIEW_STYLES}
+    ${PREVIEW_ERROR_DISPLAY_STYLES}
     html, body, #root { min-height: 100vh; height: 100%; margin: 0; }
   </style>
 </head>
@@ -162,11 +214,12 @@ ${reactBitsBlock}  <script type="text/babel" data-presets="react">
 try {
 ${componentSource}
 } catch (error) {
-  document.getElementById('root').innerHTML =
-    '<pre style="padding:1rem;color:#b91c1c;font-family:system-ui,sans-serif;white-space:pre-wrap;">' +
-    (error && error.message ? error.message : 'Failed to render generated UI') +
-    (error && error.stack ? '\\n\\n' + error.stack : '') +
-    '</pre>';
+  var message = error && error.message ? error.message : 'Failed to render generated UI';
+  var stack = error && error.stack ? error.stack : undefined;
+  if (typeof window.__reportPreviewError === 'function') {
+    window.__reportPreviewError({ message: message, stack: stack });
+  }
+  renderPreviewErrorInRoot();
 }
   </script>
 </body>

@@ -5,7 +5,17 @@ import {
   reportGenerationError,
   reportModificationError,
 } from '@/utils/reportError'
-import type { Project, ProjectVersion, VersionType } from '@/types/project'
+import type {
+  Project,
+  ProjectIteration,
+  ProjectVersion,
+  VersionType,
+} from '@/types/project'
+import {
+  getIteration,
+  getLatestIteration,
+  getLatestVersion,
+} from '@/utils/projectHelpers'
 import {
   loadProjects,
   removeProject,
@@ -27,14 +37,23 @@ function createVersion(
   }
 }
 
+function createIteration(initialVersion: ProjectVersion): ProjectIteration {
+  return {
+    id: crypto.randomUUID(),
+    createdAt: initialVersion.createdAt,
+    versions: [initialVersion],
+  }
+}
+
 function createProject(initialPrompt: string, version: ProjectVersion): Project {
-  const now = version.createdAt
+  const iteration = createIteration(version)
+  const now = iteration.createdAt
   return {
     id: crypto.randomUUID(),
     initialPrompt,
     createdAt: now,
     updatedAt: now,
-    versions: [version],
+    iterations: [iteration],
   }
 }
 
@@ -47,11 +66,15 @@ export function useBuilderState() {
   const { showToast } = useToast()
   const [projects, setProjects] = useState<Project[]>(() => loadProjects())
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null)
+  const [activeIterationId, setActiveIterationId] = useState<string | null>(
+    null,
+  )
   const [activeVersionId, setActiveVersionId] = useState<string | null>(null)
   const [isEditorOpen, setIsEditorOpen] = useState(false)
   const [prompt, setPrompt] = useState('')
   const [viewMode, setViewMode] = useState<ViewMode>('preview')
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isRegenerating, setIsRegenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -63,14 +86,21 @@ export function useBuilderState() {
     [projects, activeProjectId],
   )
 
-  const activeVersion = useMemo(() => {
-    if (!activeProject || !activeVersionId) {
+  const activeIteration = useMemo(() => {
+    if (!activeProject || !activeIterationId) {
       return null
     }
-    return activeProject.versions.find((v) => v.id === activeVersionId) ?? null
-  }, [activeProject, activeVersionId])
+    return getIteration(activeProject, activeIterationId) ?? null
+  }, [activeProject, activeIterationId])
 
-  const latestVersionId = activeProject?.versions.at(-1)?.id ?? null
+  const activeVersion = useMemo(() => {
+    if (!activeIteration || !activeVersionId) {
+      return null
+    }
+    return activeIteration.versions.find((v) => v.id === activeVersionId) ?? null
+  }, [activeIteration, activeVersionId])
+
+  const latestVersionId = activeIteration?.versions.at(-1)?.id ?? null
   const isViewingPastVersion = Boolean(
     activeVersionId && latestVersionId && activeVersionId !== latestVersionId,
   )
@@ -80,10 +110,12 @@ export function useBuilderState() {
   const canModify = hasActiveProject
   const showEditorColumn = isEditorOpen
   const isCreatingNew = isEditorOpen && !activeProjectId
+  const canRegenerate = Boolean(activeProject)
 
-  const addVersionToProject = useCallback(
+  const addVersionToIteration = useCallback(
     (
       projectId: string,
+      iterationId: string,
       instruction: string,
       generatedCode: string,
       type: VersionType,
@@ -99,7 +131,11 @@ export function useBuilderState() {
         const updated: Project = {
           ...project,
           updatedAt: version.createdAt,
-          versions: [...project.versions, version],
+          iterations: project.iterations.map((iteration) =>
+            iteration.id === iterationId
+              ? { ...iteration, versions: [...iteration.versions, version] }
+              : iteration,
+          ),
         }
 
         return upsertProject(prev, updated)
@@ -115,9 +151,11 @@ export function useBuilderState() {
     (initialPrompt: string, generatedCode: string) => {
       const version = createVersion(initialPrompt, generatedCode, 'initial')
       const project = createProject(initialPrompt, version)
+      const iteration = project.iterations[0]
 
       setProjects((prev) => upsertProject(prev, project))
       setActiveProjectId(project.id)
+      setActiveIterationId(iteration.id)
       setActiveVersionId(version.id)
       setIsEditorOpen(true)
       setPrompt('')
@@ -153,7 +191,7 @@ export function useBuilderState() {
       return
     }
 
-    if (!activeProject || !code) {
+    if (!activeProject || !activeIterationId || !code) {
       setError('Start or select a project before applying modifications.')
       return
     }
@@ -163,8 +201,9 @@ export function useBuilderState() {
 
     try {
       const generated = await modifyUi(trimmed, code)
-      addVersionToProject(
+      addVersionToIteration(
         activeProject.id,
+        activeIterationId,
         trimmed,
         generated.code,
         'modification',
@@ -175,7 +214,58 @@ export function useBuilderState() {
     } finally {
       setIsGenerating(false)
     }
-  }, [activeProject, code, prompt, addVersionToProject, showToast])
+  }, [
+    activeProject,
+    activeIterationId,
+    code,
+    prompt,
+    addVersionToIteration,
+    showToast,
+  ])
+
+  const runRegenerate = useCallback(async () => {
+    if (!activeProject) {
+      return
+    }
+
+    setError(null)
+    setIsRegenerating(true)
+
+    try {
+      const generated = await generateUi(activeProject.initialPrompt)
+      const version = createVersion(
+        activeProject.initialPrompt,
+        generated.code,
+        'initial',
+      )
+      const iteration = createIteration(version)
+
+      setProjects((prev) => {
+        const project = prev.find((p) => p.id === activeProject.id)
+        if (!project) {
+          return prev
+        }
+
+        const updated: Project = {
+          ...project,
+          updatedAt: version.createdAt,
+          iterations: [...project.iterations, iteration],
+        }
+
+        return upsertProject(prev, updated)
+      })
+
+      setActiveIterationId(iteration.id)
+      setActiveVersionId(version.id)
+      setPrompt('')
+      setViewMode('preview')
+      showToast('New iteration generated')
+    } catch (err) {
+      reportGenerationError(err, showToast)
+    } finally {
+      setIsRegenerating(false)
+    }
+  }, [activeProject, showToast])
 
   const selectProject = useCallback(
     (projectId: string) => {
@@ -184,8 +274,14 @@ export function useBuilderState() {
         return
       }
 
-      const latestVersion = project.versions[project.versions.length - 1]
+      const iteration = getLatestIteration(project)
+      const latestVersion = iteration ? getLatestVersion(iteration) : null
+      if (!iteration || !latestVersion) {
+        return
+      }
+
       setActiveProjectId(project.id)
+      setActiveIterationId(iteration.id)
       setActiveVersionId(latestVersion.id)
       setIsEditorOpen(true)
       setPrompt('')
@@ -194,26 +290,54 @@ export function useBuilderState() {
     [projects],
   )
 
-  const revertToVersion = useCallback(
-    (projectId: string, versionId: string) => {
-      const project = projects.find((p) => p.id === projectId)
-      const version = project?.versions.find((v) => v.id === versionId)
-      if (!project || !version) {
+  const selectIteration = useCallback(
+    (iterationId: string) => {
+      if (!activeProject) {
         return
       }
 
-      setActiveProjectId(projectId)
-      setActiveVersionId(versionId)
-      setIsEditorOpen(true)
+      const iteration = getIteration(activeProject, iterationId)
+      const latestVersion = iteration ? getLatestVersion(iteration) : null
+      if (!iteration || !latestVersion) {
+        return
+      }
+
+      setActiveIterationId(iterationId)
+      setActiveVersionId(latestVersion.id)
       setPrompt('')
       setError(null)
       setViewMode('preview')
+    },
+    [activeProject],
+  )
+
+  const revertToVersion = useCallback(
+    (projectId: string, versionId: string) => {
+      const project = projects.find((p) => p.id === projectId)
+      if (!project) {
+        return
+      }
+
+      for (const iteration of project.iterations) {
+        const version = iteration.versions.find((v) => v.id === versionId)
+        if (version) {
+          setActiveProjectId(projectId)
+          setActiveIterationId(iteration.id)
+          setActiveVersionId(versionId)
+          setIsEditorOpen(true)
+          setPrompt('')
+          setError(null)
+          setViewMode('preview')
+          return
+        }
+      }
     },
     [projects],
   )
 
   const startNewProject = useCallback(() => {
     setActiveProjectId(null)
+    setActiveIterationId(null)
     setActiveVersionId(null)
     setIsEditorOpen(true)
     setPrompt('')
@@ -231,6 +355,7 @@ export function useBuilderState() {
 
       if (activeProjectId === projectId) {
         setActiveProjectId(null)
+        setActiveIterationId(null)
         setActiveVersionId(null)
         setIsEditorOpen(false)
         setPrompt('')
@@ -257,20 +382,26 @@ export function useBuilderState() {
     setViewMode,
     code,
     isGenerating,
+    isRegenerating,
     error,
     hasActiveProject,
     canModify,
+    canRegenerate,
     showEditorColumn,
     isCreatingNew,
     isViewingPastVersion,
     projects,
     activeProjectId,
+    activeIterationId,
     activeVersionId,
     activeProject,
+    activeIteration,
     activeVersion,
     handleSubmit,
+    runRegenerate,
     startNewProject,
     selectProject,
+    selectIteration,
     revertToVersion,
     deleteProject,
   }

@@ -1,3 +1,4 @@
+import { fixOrphanIsInView } from './fix-orphan-is-in-view';
 import { stripOrphanRefAttributes } from './fix-orphan-ref';
 import { fixMergedJsxTagAttributes } from './jsx-tag-utils';
 
@@ -115,8 +116,10 @@ export function migrateToGeneratedApp(code: string): string {
 }
 
 export function normalizeUiCode(code: string): string {
-  const trimmed = stripOrphanRefAttributes(
-    fixMergedJsxTagAttributes(migrateToGeneratedApp(code.trim())),
+  const trimmed = fixOrphanIsInView(
+    stripOrphanRefAttributes(
+      fixMergedJsxTagAttributes(migrateToGeneratedApp(code.trim())),
+    ),
   );
   if (!trimmed) {
     return '';

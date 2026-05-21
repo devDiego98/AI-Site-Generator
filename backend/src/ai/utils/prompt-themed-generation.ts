@@ -30,7 +30,7 @@ const THEME_RULES: ThemeRule[] = [
     theme: 'ai',
     keywords:
       /\b(ai\b|artificial intelligence|machine learning|ml\b|neural|gpt|llm|deep learning)\b/i,
-    backgrounds: ['Aurora', 'LiquidEther', 'PrismaticBurst', 'LightRays'],
+    backgrounds: ['Aurora', 'LiquidEther', 'LightRays', 'Prism'],
   },
   {
     theme: 'saas',
@@ -54,7 +54,7 @@ const THEME_RULES: ThemeRule[] = [
     theme: 'creative',
     keywords:
       /\b(agency|portfolio|design studio|creative|brand|art direction)\b/i,
-    backgrounds: ['Ribbons', 'PrismaticBurst', 'Particles', 'Iridescence'],
+    backgrounds: ['Particles', 'Iridescence', 'LiquidEther', 'SplashCursor'],
   },
   {
     theme: 'gaming',
@@ -91,12 +91,12 @@ const THEME_RULES: ThemeRule[] = [
     theme: 'luxury',
     keywords:
       /\b(luxury|premium|real estate|property|estate|exclusive|high-end)\b/i,
-    backgrounds: ['LightPillar', 'PrismaticBurst', 'Iridescence', 'Orb'],
+    backgrounds: ['LightPillar', 'Iridescence', 'Prism', 'Orb'],
   },
   {
     theme: 'retail',
     keywords: /\b(shop|store|e-?commerce|retail|product catalog|boutique)\b/i,
-    backgrounds: ['Ribbons', 'SplashCursor', 'Particles', 'DotGrid'],
+    backgrounds: ['SplashCursor', 'Particles', 'DotGrid', 'PlasmaWave'],
   },
   {
     theme: 'eco',
@@ -107,13 +107,13 @@ const THEME_RULES: ThemeRule[] = [
   {
     theme: 'music',
     keywords: /\b(music|audio|podcast|studio|concert|dj\b)\b/i,
-    backgrounds: ['Ribbons', 'Orb', 'PlasmaWave', 'Plasma'],
+    backgrounds: ['Orb', 'PlasmaWave', 'Plasma', 'LightRays'],
   },
 ];
 
 const FALLBACK_BACKGROUNDS: ReactBitsBackgroundName[] = [
   'LiquidEther',
-  'PrismaticBurst',
+  'LightRays',
   'Grainient',
   'LightRays',
   'Aurora',

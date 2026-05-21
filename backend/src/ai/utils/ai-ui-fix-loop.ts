@@ -1,4 +1,4 @@
-import type Groq from 'groq-sdk';
+import type { AiChatProvider } from '../providers/ai-chat-provider.interface';
 import { buildDesignFixUserMessage } from './design-fix-prompt';
 import { extractUiCode } from './extract-ui-code';
 import { prepareUiCode, type ValidateUiCodeResult } from './validate-ui-code';
@@ -6,13 +6,13 @@ import { prepareUiCode, type ValidateUiCodeResult } from './validate-ui-code';
 export const DEFAULT_MAX_AI_FIX_ATTEMPTS = 3;
 
 export interface AiUiFixLoopParams {
-  groq: Groq;
-  model: string;
+  provider: AiChatProvider;
   systemPrompt: string;
   userContent: string;
   initialAssistantCode: string;
   maxAttempts?: number;
   onAttempt?: (attempt: number, error: string) => void;
+  forModification?: boolean;
 }
 
 export interface AiUiFixLoopResult {
@@ -28,17 +28,18 @@ export async function runAiUiFixLoop(
   params: AiUiFixLoopParams,
 ): Promise<AiUiFixLoopResult> {
   const {
-    groq,
-    model,
+    provider,
     systemPrompt,
     userContent,
     initialAssistantCode,
     maxAttempts = DEFAULT_MAX_AI_FIX_ATTEMPTS,
     onAttempt,
+    forModification,
   } = params;
 
+  const prepareOptions = { forModification };
   let assistantCode = initialAssistantCode;
-  let { code, validation } = prepareUiCode(assistantCode);
+  let { code, validation } = prepareUiCode(assistantCode, prepareOptions);
   let attempts = 0;
 
   while (!validation.valid && attempts < maxAttempts) {
@@ -46,19 +47,20 @@ export async function runAiUiFixLoop(
     const errorDetail = validation.error ?? 'unknown validation error';
     onAttempt?.(attempts, errorDetail);
 
-    const completion = await groq.chat.completions.create({
-      model,
-      temperature: 0.4,
-      max_tokens: 4096,
+    const raw = await provider.complete({
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userContent },
         { role: 'assistant', content: assistantCode },
-        { role: 'user', content: buildDesignFixUserMessage(errorDetail) },
+        {
+          role: 'user',
+          content: buildDesignFixUserMessage(errorDetail),
+        },
       ],
+      temperature: 0.4,
+      maxTokens: 4096,
     });
 
-    const raw = completion.choices[0]?.message?.content?.trim();
     const extracted = raw ? extractUiCode(raw) : null;
     if (!extracted) {
       validation = {
@@ -70,7 +72,7 @@ export async function runAiUiFixLoop(
     }
 
     assistantCode = extracted;
-    ({ code, validation } = prepareUiCode(extracted));
+    ({ code, validation } = prepareUiCode(extracted, prepareOptions));
   }
 
   return { code, validation, attempts };

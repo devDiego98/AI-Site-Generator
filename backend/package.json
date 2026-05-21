@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.97.1",
     "@babel/parser": "^7.29.3",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
@@ -27,7 +28,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
-    "groq-sdk": "^1.2.0",
+    "openai": "^6.38.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },

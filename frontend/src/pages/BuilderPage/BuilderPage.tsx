@@ -12,18 +12,24 @@ export function BuilderPage() {
     setViewMode,
     code,
     isGenerating,
+    isRegenerating,
     error,
     canModify,
+    canRegenerate,
     showEditorColumn,
     isCreatingNew,
     isViewingPastVersion,
     projects,
     activeProjectId,
+    activeIterationId,
     activeVersionId,
     activeProject,
+    activeIteration,
     handleSubmit,
+    runRegenerate,
     startNewProject,
     selectProject,
+    selectIteration,
     revertToVersion,
     deleteProject,
   } = useBuilderState()
@@ -47,11 +53,17 @@ export function BuilderPage() {
             onPromptChange={setPrompt}
             onSubmit={handleSubmit}
             isGenerating={isGenerating}
+            isRegenerating={isRegenerating}
             canModify={canModify}
+            canRegenerate={canRegenerate}
             error={error}
             isViewingPastVersion={isViewingPastVersion}
             activeProject={activeProject}
+            activeIteration={activeIteration}
+            activeIterationId={activeIterationId}
             activeVersionId={activeVersionId}
+            onRegenerate={() => void runRegenerate()}
+            onSelectIteration={selectIteration}
             onRevertToVersion={(versionId) => {
               if (activeProjectId) {
                 revertToVersion(activeProjectId, versionId)
@@ -66,7 +78,7 @@ export function BuilderPage() {
           onViewModeChange={setViewMode}
           code={code}
           previewKey={activeVersionId}
-          isGenerating={isGenerating}
+          isGenerating={isGenerating || isRegenerating}
         />
       }
     />

@@ -1,0 +1,27 @@
+.bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+}
+
+.promptBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.promptText {
+  margin: 0;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

@@ -55,7 +55,7 @@ export const REACTBITS_LIBRARY_CATALOG = \`
 Animated page backgrounds from reactbits.dev. All components are pre-installed globals — use directly, NO imports, NO inlining, NO third-party background libs.
 
 MANDATORY: Every UI MUST include at least one ReactBits background.
-FORBIDDEN: ColorBends, GridPattern, DotPattern, Spotlight, BackgroundLayer, custom canvas/CSS backgrounds, import statements.
+FORBIDDEN: ColorBends, GridPattern, DotPattern, Spotlight, BackgroundLayer, custom canvas/CSS backgrounds, import statements, PrismaticBurst, Ribbons (removed from library — never use).
 
 === BACKGROUND PROP RULES (strict) ===
 Every ReactBits component ships with built-in default values for ALL props (speed, size, intensity, counts, etc.).
@@ -76,27 +76,27 @@ Selection process:
 
 Theme → background (use when the prompt fits):
 - Fiber optic / telecom / networking / ISP / broadband / data cables / connectivity → Hyperspeed, LaserFlow
-- AI / ML / futuristic tech / startups → Aurora, LiquidEther, PrismaticBurst, LightRays
+- AI / ML / futuristic tech / startups → Aurora, LiquidEther, LightRays, Prism
 - SaaS / B2B software / dashboards / analytics → Hyperspeed, GridScan, DotGrid
 - Finance / fintech / banking → Galaxy, Aurora, DarkVeil
 - Wellness / spa / meditation / yoga → SoftAurora, FloatingLines, Grainient
-- Creative agency / portfolio / design studio → Ribbons, PrismaticBurst, Particles, Iridescence
+- Creative agency / portfolio / design studio → Particles, Iridescence, LiquidEther, SplashCursor
 - Gaming / entertainment → Hyperspeed, PixelSnow, Plasma
 - Space / astronomy / science → Galaxy, Aurora, LightRays
 - Cybersecurity / hacker / dark tech → DarkVeil, GridScan, Hyperspeed
 - Events / conferences / meetups → Aurora, LightRays, LiquidEther
 - Education / courses / learning → Aurora, FloatingLines
 - Healthcare / medical → SoftAurora, FloatingLines (calm, trustworthy)
-- Real estate / luxury / premium brands → LightPillar, PrismaticBurst, Iridescence
-- E-commerce / retail (playful) → Ribbons, SplashCursor, Particles
+- Real estate / luxury / premium brands → LightPillar, Iridescence, Prism, Orb
+- E-commerce / retail (playful) → SplashCursor, Particles, DotGrid
 - Nature / eco / sustainability → Grainient, SoftAurora (green-tinted color props)
-- Music / audio → Ribbons, Orb, PlasmaWave
+- Music / audio → Orb, PlasmaWave, Plasma, LightRays
 
 Fallback by vibe (only when no clear industry match):
-- Hero / landing / premium → LiquidEther, Aurora, PrismaticBurst, LightRays
+- Hero / landing / premium → LiquidEther, Aurora, LightRays, LightPillar
 - Tech / SaaS / dashboard → Hyperspeed, GridScan, LaserFlow
 - Calm / wellness → SoftAurora, FloatingLines, Grainient
-- Playful / creative → Ribbons, Particles, PrismaticBurst
+- Playful / creative → Particles, SplashCursor, PlasmaWave, DotGrid
 - Dark / moody → DarkVeil, Galaxy, Plasma
 - Interactive → LiquidEther, DotGrid, SplashCursor
 
@@ -105,6 +105,11 @@ ${defaultLines.join('\n')}
 
 Per-component usage (color props only when customizing palette):
 ${wrapperLines.join('\n')}
+
+=== THEME-SPECIFIC BACKGROUND PICKS (use with visual mode from GENERATION BRIEF) ===
+Dark pages ONLY: Aurora, LiquidEther, LightRays, Hyperspeed, DarkVeil, Galaxy, Particles, GridScan
+Light pages ONLY: SoftAurora, FloatingLines, Grainient, Threads, DotGrid, Iridescence, LightPillar
+Never cross lists. Hero/full-page: pick one; tune color props only.
 
 === PAGE SHELL (pick light OR dark from prompt — not always dark) ===
 Place the background ONCE outside page routing — same background for all pages.
@@ -154,6 +159,12 @@ ${names.map((n) => `  '${n}',`).join('\n')}
 ] as const;
 
 export type ReactBitsBackgroundName = (typeof REACTBITS_BACKGROUND_NAMES)[number];
+
+/** Removed from library — auto-replaced in fix pipeline; never use in generation. */
+export const REACTBITS_DISABLED_BACKGROUNDS = [
+  'PrismaticBurst',
+  'Ribbons',
+] as const;
 
 /** Default JSX per component — color props only, non-color props use component defaults. */
 export const REACTBITS_BACKGROUND_USAGE: Record<

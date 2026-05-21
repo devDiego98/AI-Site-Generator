@@ -1,12 +1,12 @@
 # Backend
 
-NestJS API for the AI UI Builder challenge. Exposes `POST /generate-ui`, which calls **Groq** to generate React + Tailwind UI code from a natural-language prompt.
+NestJS API for the AI UI Builder challenge. Exposes `POST /generate-ui`, which calls a configurable AI provider (Groq, OpenAI, Anthropic, Ollama, Mistral) to generate React + Tailwind UI code from a natural-language prompt.
 
 ## Run
 
 ```bash
 npm install
-cp .env.example .env   # set AI_API_KEY from https://console.groq.com
+cp .env.example .env   # set AI_PROVIDER, AI_API_KEY, AI_MODEL
 npm run start:dev
 ```
 
@@ -44,7 +44,7 @@ API default: http://localhost:3000
 
 - `400` — invalid or empty prompt (class-validator)
 - `503` — `AI_API_KEY` not configured
-- `502` — Groq API failure or empty AI response
+- `502` — AI provider failure or empty AI response
 
 ## Environment variables
 
@@ -52,15 +52,17 @@ API default: http://localhost:3000
 |----------------|--------------------------------|------------------------------|
 | `PORT`         | HTTP port                      | `3000`                       |
 | `CORS_ORIGIN`  | Allowed frontend origin        | `http://localhost:5173`      |
-| `AI_PROVIDER`  | Provider id (informational)    | `groq`                       |
-| `AI_API_KEY`   | Groq API key (server only)     | `gsk_…`                      |
-| `AI_MODEL`     | Groq chat model                | `meta-llama/llama-4-scout-17b-16e-instruct` |
+| `AI_PROVIDER`  | Provider: `groq`, `openai`, `anthropic`, `ollama`, `mistral` | `groq` |
+| `AI_API_KEY`   | Provider API key (not required for Ollama) | `gsk_…` / `sk-…` |
+| `AI_MODEL`     | Model id for the selected provider | `meta-llama/llama-4-scout-17b-16e-instruct` |
+| `AI_BASE_URL`  | Optional API base URL override | `http://localhost:11434/v1` |
 
 ## Structure
 
 ```txt
 src/
-  ai/                 # Groq client + system prompt + code extraction
+  ai/                 # Provider factory + prompts + code extraction
+  ai/providers/       # Groq, OpenAI, Anthropic, Ollama, Mistral adapters
   generate-ui/        # POST /generate-ui — controller, service, DTO
   common/types/       # GeneratedUi response type
   app.module.ts

@@ -1,26 +1,58 @@
-import type { Project, ProjectVersion, VersionType } from '@/types/project'
+import type {
+  Project,
+  ProjectIteration,
+  ProjectVersion,
+  VersionType,
+} from '@/types/project'
 
 const STORAGE_KEY = 'ai-ui-builder-projects'
 const LEGACY_STORAGE_KEY = 'ai-ui-builder-threads'
+
+type LegacyProject = Project & { versions?: ProjectVersion[] }
 
 function normalizeVersionType(type: string): VersionType {
   return type === 'initial' ? 'initial' : 'modification'
 }
 
-function normalizeVersion(version: ProjectVersion & { type?: string }): ProjectVersion {
+function normalizeVersion(
+  version: ProjectVersion & { type?: string },
+): ProjectVersion {
   return {
     ...version,
     type: normalizeVersionType(version.type ?? 'modification'),
   }
 }
 
-function normalizeProject(project: Project): Project {
-  const versions = project.versions.map(normalizeVersion)
-  const updatedAt = versions[versions.length - 1]?.createdAt ?? project.updatedAt
+function migrateLegacyVersions(project: LegacyProject): ProjectIteration[] {
+  const versions = (project.versions ?? []).map(normalizeVersion)
+  if (versions.length === 0) {
+    return []
+  }
+
+  return [
+    {
+      id: crypto.randomUUID(),
+      createdAt: versions[0]?.createdAt ?? project.createdAt,
+      versions,
+    },
+  ]
+}
+
+function normalizeProject(project: LegacyProject): Project {
+  const iterations =
+    project.iterations?.map((iteration) => ({
+      ...iteration,
+      versions: iteration.versions.map(normalizeVersion),
+    })) ?? migrateLegacyVersions(project)
+
+  const lastVersion = iterations.at(-1)?.versions.at(-1)
+  const updatedAt = lastVersion?.createdAt ?? project.updatedAt
+
+  const { versions: _legacy, ...rest } = project
 
   return {
-    ...project,
-    versions,
+    ...rest,
+    iterations,
     updatedAt,
   }
 }
@@ -35,7 +67,7 @@ export function loadProjects(): Project[] {
       return []
     }
 
-    const parsed = JSON.parse(raw) as Project[]
+    const parsed = JSON.parse(raw) as LegacyProject[]
     if (!Array.isArray(parsed)) {
       return []
     }

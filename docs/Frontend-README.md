@@ -104,7 +104,7 @@ frontend/
     │   ├── projectStorage.ts      # localStorage CRUD
     │   └── reportError.ts         # Toast helpers for API errors
     ├── preview/               # Iframe runtime (see below)
-    ├── ReactBits/             # 24 animated backgrounds (preview IIFE only)
+    ├── ReactBits/             # 22 animated backgrounds (preview IIFE only)
     ├── styles/                # Design tokens + global CSS
     └── types/                 # Project, GeneratedUi, ViewMode
 ```

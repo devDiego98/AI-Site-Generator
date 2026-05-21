@@ -73,6 +73,27 @@ describe('fixMatchingTextBackground', () => {
   });
 });
 
+describe('design pipeline preserves hero text-white on light shells', () => {
+  it('keeps text-white on headings over dark hero backgrounds', () => {
+    const code = `export default function GeneratedApp() {
+  return (
+    <div className="relative min-h-screen bg-[#f5f5f2] text-[#111111]">
+      <div className="reactbits-bg fixed inset-0 z-0 pointer-events-none"><SoftAurora /></div>
+      <section className="relative z-[1] min-h-screen flex flex-col justify-center px-8">
+        <h1 className="text-5xl font-bold text-white">Unlock the Future of Manufacturing</h1>
+        <p className="mt-4 text-lg text-white/80">Join our academy</p>
+      </section>
+    </div>
+  );
+}`;
+    const fixed = enforceUnifiedVisualMode(code, 'light');
+    expect(fixed).toMatch(
+      /<h1[^>]*text-white[^>]*>Unlock the Future of Manufacturing<\/h1>/,
+    );
+    expect(fixed).toMatch(/text-white\/80/);
+  });
+});
+
 describe('design pipeline fixes same-color buttons', () => {
   it('auto-corrects bg-[#111111] text-[#111111] from light-mode remap bug', () => {
     const code = `export default function GeneratedApp() {

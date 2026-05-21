@@ -16,13 +16,20 @@ import {
   hasDarkSolidBackground,
   hasLightSolidBackground,
 } from './contrast-utils';
-import { fixMergedJsxTagAttributes, formatOpenTagAttrs } from './jsx-tag-utils';
+import {
+  fixMergedJsxTagAttributes,
+  fixShadcnButtonTags,
+  formatOpenTagAttrs,
+  replaceJsxOpenTags,
+} from './jsx-tag-utils';
+import { stripDisabledReactBitsBackgrounds } from './random-background-swap';
 import {
   evaluateUiDesign,
   inferVisualModeFromCode,
   type DesignEvaluation,
   type VisualMode,
 } from './evaluate-ui-design';
+import { hasIntentionalTextColor } from './text-color-utils';
 
 const CLASSNAME_ATTR =
   /className=(?:"([^"]*)"|'([^']*)'|\{`([^`]*)`\}|\{"([^"]*)"\})/g;
@@ -35,7 +42,6 @@ const NAV_OPEN = /<nav(\s[^>]*)?>/gi;
 const CARD_OPEN = /<Card(\s[^>]*)?>/gi;
 const CARD_BARE = /<Card\s*\/>/gi;
 const CARD_BARE_CLOSE = /<Card>/gi;
-const BUTTON_OPEN = /<button(\s[^>]*)?>/gi;
 
 function dedupeClasses(cls: string): string {
   const seen = new Set<string>();
@@ -106,25 +112,30 @@ function remapClasses(classStr: string, mode: VisualMode): string {
 
   const hasDarkFill = hasDarkSolidBackground(cls);
   const hasLightFill = hasLightSolidBackground(cls);
+  const preserveTextColors = hasIntentionalTextColor(cls);
 
-  if (mode === 'dark') {
-    if (!hasLightFill) {
+  if (!preserveTextColors) {
+    if (mode === 'dark') {
+      if (!hasLightFill) {
+        cls = cls
+          .replace(/\btext-slate-900\b/g, 'text-slate-100')
+          .replace(/\btext-slate-800\b/g, 'text-slate-200')
+          .replace(/\btext-gray-900\b/g, 'text-slate-100')
+          .replace(/\btext-black\b/g, 'text-[#efefef]')
+          .replace(/\btext-\[#111111\]\b/g, 'text-[#efefef]')
+          .replace(/\btext-blue-(?:700|800|900|950)\b/g, 'text-white')
+          .replace(/\btext-indigo-(?:700|800|900|950)\b/g, 'text-white')
+          .replace(/\btext-primary\b/g, 'text-[#efefef]');
+      }
+    } else if (hasLightFill) {
+      // Only remap light text on elements with an opaque light fill — hero copy
+      // over ReactBits/photo backgrounds often has no bg class but needs text-white.
       cls = cls
-        .replace(/\btext-slate-900\b/g, 'text-slate-100')
-        .replace(/\btext-slate-800\b/g, 'text-slate-200')
-        .replace(/\btext-gray-900\b/g, 'text-slate-100')
-        .replace(/\btext-black\b/g, 'text-[#efefef]')
-        .replace(/\btext-\[#111111\]\b/g, 'text-[#efefef]')
-        .replace(/\btext-blue-(?:700|800|900|950)\b/g, 'text-white')
-        .replace(/\btext-indigo-(?:700|800|900|950)\b/g, 'text-white')
-        .replace(/\btext-primary\b/g, 'text-[#efefef]');
+        .replace(/\btext-white\b(?!\/.)/g, 'text-[#111111]')
+        .replace(/\btext-\[#efefef\]\b/g, 'text-[#111111]')
+        .replace(/\btext-\[#f0f0f0\]\b/g, 'text-[#111111]')
+        .replace(/\btext-slate-100\b/g, 'text-black/50');
     }
-  } else if (!hasDarkFill) {
-    cls = cls
-      .replace(/\btext-white\b(?!\/.)/g, 'text-[#111111]')
-      .replace(/\btext-\[#efefef\]\b/g, 'text-[#111111]')
-      .replace(/\btext-\[#f0f0f0\]\b/g, 'text-[#111111]')
-      .replace(/\btext-slate-100\b/g, 'text-black/50');
   }
 
   return dedupeClasses(fixFilledControlContrast(cls, mode));
@@ -270,15 +281,16 @@ function fixHeadings(code: string, mode: VisualMode): string {
       const sizeClass =
         level === 1 ? 'text-4xl' : level === 2 ? 'text-3xl' : 'text-2xl';
       const textClass = mode === 'dark' ? 'text-[#efefef]' : 'text-[#111111]';
+      const hasColor = hasIntentionalTextColor(nextAttrs);
 
       if (!/\btext-(?:2xl|3xl|4xl|5xl|6xl)\b/.test(nextAttrs)) {
-        nextAttrs = appendClasses(
-          nextAttrs,
-          `${sizeClass} font-bold ${textClass}`,
-        );
+        const additions = hasColor
+          ? `${sizeClass} font-bold`
+          : `${sizeClass} font-bold ${textClass}`;
+        nextAttrs = appendClasses(nextAttrs, additions);
       } else {
         nextAttrs = appendClasses(nextAttrs, 'font-bold');
-        if (!/\btext-(?:white|slate-9)/.test(nextAttrs)) {
+        if (!/\btext-(?:white|slate-9)/.test(nextAttrs) && !hasColor) {
           nextAttrs = appendClasses(nextAttrs, textClass);
         }
       }
@@ -294,7 +306,10 @@ function fixBodyCopy(code: string, mode: VisualMode): string {
   for (const tag of tags) {
     const re = new RegExp(`<${tag}(\\s[^>]*)?>`, 'gi');
     fixed = fixed.replace(re, (match: string, attrs: string = '') => {
-      if (/\btext-(?:white|slate-|gray-|muted)/.test(attrs)) {
+      if (
+        /\btext-(?:white|slate-|gray-|muted)/.test(attrs) ||
+        hasIntentionalTextColor(attrs)
+      ) {
         return match;
       }
       const addition = mode === 'dark' ? 'text-white/55' : 'text-black/55';
@@ -340,22 +355,22 @@ function ensureNavLayoutClasses(attrs: string): string {
 }
 
 function fixButtons(code: string, mode: VisualMode): string {
-  return code.replace(BUTTON_OPEN, (match: string, attrs: string = '') => {
+  return replaceJsxOpenTags(code, 'button', (attrs) => {
     const classMatch = attrs.match(/className=(?:"([^"]*)"|'([^']*)')/);
     if (!classMatch) {
       const fill =
         mode === 'dark'
           ? 'rounded-full bg-white text-[#111111] font-semibold min-h-[44px]'
           : 'rounded-full bg-[#111111] text-white font-semibold min-h-[44px]';
-      return `<button${formatOpenTagAttrs(appendClasses(attrs, fill))}>`;
+      return formatOpenTagAttrs(appendClasses(attrs, fill));
     }
     const quote = attrs.includes('className="') ? '"' : "'";
     const raw = classMatch[1] ?? classMatch[2] ?? '';
     const fixed = fixFilledControlContrast(raw, mode);
     if (fixed === raw) {
-      return match;
+      return attrs;
     }
-    return match.replace(classMatch[0], `className=${quote}${fixed}${quote}`);
+    return attrs.replace(classMatch[0], `className=${quote}${fixed}${quote}`);
   });
 }
 
@@ -435,7 +450,9 @@ export function enforceUnifiedVisualMode(
   code: string,
   mode: VisualMode,
 ): string {
-  let fixed = fixReactBitsCanvas(code);
+  let fixed = fixShadcnButtonTags(
+    fixReactBitsCanvas(stripDisabledReactBitsBackgrounds(code)),
+  );
   fixed = normalizeRootShell(fixed, mode);
   fixed = rewriteAllClassNames(fixed, mode);
   fixed = fixBareCards(fixed, mode);

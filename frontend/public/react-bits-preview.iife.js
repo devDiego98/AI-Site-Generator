@@ -338,7 +338,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
   }
   const tempVec3$1 = /* @__PURE__ */ new Vec3();
-  let ID$4 = 1;
+  let ID$3 = 1;
   let ATTR_ID = 1;
   let isBoundsWarned = false;
   class Geometry {
@@ -346,7 +346,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       if (!gl2.canvas) console.error("gl not passed as first argument to Geometry");
       this.gl = gl2;
       this.attributes = attributes;
-      this.id = ID$4++;
+      this.id = ID$3++;
       this.VAOs = {};
       this.drawRange = { start: 0, count: 0 };
       this.instancedCount = 0;
@@ -540,7 +540,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
     }
   }
-  let ID$3 = 1;
+  let ID$2 = 1;
   const arrayCacheF32$1 = {};
   class Program {
     constructor(gl2, {
@@ -557,7 +557,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       if (!gl2.canvas) console.error("gl not passed as first argument to Program");
       this.gl = gl2;
       this.uniforms = uniforms;
-      this.id = ID$3++;
+      this.id = ID$2++;
       if (!vertex2) console.warn("vertex shader not supplied");
       if (!fragment2) console.warn("fragment shader not supplied");
       this.transparent = transparent;
@@ -817,7 +817,7 @@ ${addLineNumbers(fragment2)}`);
     if (warnCount > 100) console.warn("More than 100 program warnings - stopping logs.");
   }
   const tempVec3 = /* @__PURE__ */ new Vec3();
-  let ID$2 = 1;
+  let ID$1 = 1;
   class Renderer {
     constructor({
       canvas = document.createElement("canvas"),
@@ -842,7 +842,7 @@ ${addLineNumbers(fragment2)}`);
       this.stencil = stencil;
       this.premultipliedAlpha = premultipliedAlpha;
       this.autoClear = autoClear;
-      this.id = ID$2++;
+      this.id = ID$1++;
       if (webgl === 2) this.gl = canvas.getContext("webgl2", attributes);
       this.isWebgl2 = !!this.gl;
       if (!this.gl) this.gl = canvas.getContext("webgl", attributes);
@@ -2748,13 +2748,13 @@ ${addLineNumbers(fragment2)}`);
       return this;
     }
   }
-  let ID$1 = 0;
+  let ID = 0;
   let Mesh$1 = class Mesh extends Transform {
     constructor(gl2, { geometry, program, mode = gl2.TRIANGLES, frustumCulled = true, renderOrder = 0 } = {}) {
       super();
       if (!gl2.canvas) console.error("gl not passed as first argument to Mesh");
       this.gl = gl2;
-      this.id = ID$1++;
+      this.id = ID++;
       this.geometry = geometry;
       this.program = program;
       this.mode = mode;
@@ -2799,170 +2799,6 @@ ${addLineNumbers(fragment2)}`);
       this.program.use({ flipFaces });
       this.geometry.draw({ mode: this.mode, program: this.program });
       this.afterRenderCallbacks.forEach((f2) => f2 && f2({ mesh: this, camera }));
-    }
-  };
-  const emptyPixel = new Uint8Array(4);
-  function isPowerOf2(value) {
-    return (value & value - 1) === 0;
-  }
-  let ID = 1;
-  let Texture$1 = class Texture {
-    constructor(gl2, {
-      image,
-      target = gl2.TEXTURE_2D,
-      type = gl2.UNSIGNED_BYTE,
-      format = gl2.RGBA,
-      internalFormat = format,
-      wrapS = gl2.CLAMP_TO_EDGE,
-      wrapT = gl2.CLAMP_TO_EDGE,
-      wrapR = gl2.CLAMP_TO_EDGE,
-      generateMipmaps = target === (gl2.TEXTURE_2D || gl2.TEXTURE_CUBE_MAP),
-      minFilter = generateMipmaps ? gl2.NEAREST_MIPMAP_LINEAR : gl2.LINEAR,
-      magFilter = gl2.LINEAR,
-      premultiplyAlpha = false,
-      unpackAlignment = 4,
-      flipY = target == (gl2.TEXTURE_2D || gl2.TEXTURE_3D) ? true : false,
-      anisotropy = 0,
-      level = 0,
-      width,
-      // used for RenderTargets or Data Textures
-      height = width,
-      length: length2 = 1
-    } = {}) {
-      this.gl = gl2;
-      this.id = ID++;
-      this.image = image;
-      this.target = target;
-      this.type = type;
-      this.format = format;
-      this.internalFormat = internalFormat;
-      this.minFilter = minFilter;
-      this.magFilter = magFilter;
-      this.wrapS = wrapS;
-      this.wrapT = wrapT;
-      this.wrapR = wrapR;
-      this.generateMipmaps = generateMipmaps;
-      this.premultiplyAlpha = premultiplyAlpha;
-      this.unpackAlignment = unpackAlignment;
-      this.flipY = flipY;
-      this.anisotropy = Math.min(anisotropy, this.gl.renderer.parameters.maxAnisotropy);
-      this.level = level;
-      this.width = width;
-      this.height = height;
-      this.length = length2;
-      this.texture = this.gl.createTexture();
-      this.store = {
-        image: null
-      };
-      this.glState = this.gl.renderer.state;
-      this.state = {};
-      this.state.minFilter = this.gl.NEAREST_MIPMAP_LINEAR;
-      this.state.magFilter = this.gl.LINEAR;
-      this.state.wrapS = this.gl.REPEAT;
-      this.state.wrapT = this.gl.REPEAT;
-      this.state.anisotropy = 0;
-    }
-    bind() {
-      if (this.glState.textureUnits[this.glState.activeTextureUnit] === this.id) return;
-      this.gl.bindTexture(this.target, this.texture);
-      this.glState.textureUnits[this.glState.activeTextureUnit] = this.id;
-    }
-    update(textureUnit = 0) {
-      const needsUpdate = !(this.image === this.store.image && !this.needsUpdate);
-      if (needsUpdate || this.glState.textureUnits[textureUnit] !== this.id) {
-        this.gl.renderer.activeTexture(textureUnit);
-        this.bind();
-      }
-      if (!needsUpdate) return;
-      this.needsUpdate = false;
-      if (this.flipY !== this.glState.flipY) {
-        this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, this.flipY);
-        this.glState.flipY = this.flipY;
-      }
-      if (this.premultiplyAlpha !== this.glState.premultiplyAlpha) {
-        this.gl.pixelStorei(this.gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, this.premultiplyAlpha);
-        this.glState.premultiplyAlpha = this.premultiplyAlpha;
-      }
-      if (this.unpackAlignment !== this.glState.unpackAlignment) {
-        this.gl.pixelStorei(this.gl.UNPACK_ALIGNMENT, this.unpackAlignment);
-        this.glState.unpackAlignment = this.unpackAlignment;
-      }
-      if (this.minFilter !== this.state.minFilter) {
-        this.gl.texParameteri(this.target, this.gl.TEXTURE_MIN_FILTER, this.minFilter);
-        this.state.minFilter = this.minFilter;
-      }
-      if (this.magFilter !== this.state.magFilter) {
-        this.gl.texParameteri(this.target, this.gl.TEXTURE_MAG_FILTER, this.magFilter);
-        this.state.magFilter = this.magFilter;
-      }
-      if (this.wrapS !== this.state.wrapS) {
-        this.gl.texParameteri(this.target, this.gl.TEXTURE_WRAP_S, this.wrapS);
-        this.state.wrapS = this.wrapS;
-      }
-      if (this.wrapT !== this.state.wrapT) {
-        this.gl.texParameteri(this.target, this.gl.TEXTURE_WRAP_T, this.wrapT);
-        this.state.wrapT = this.wrapT;
-      }
-      if (this.wrapR !== this.state.wrapR) {
-        this.gl.texParameteri(this.target, this.gl.TEXTURE_WRAP_R, this.wrapR);
-        this.state.wrapR = this.wrapR;
-      }
-      if (this.anisotropy && this.anisotropy !== this.state.anisotropy) {
-        this.gl.texParameterf(this.target, this.gl.renderer.getExtension("EXT_texture_filter_anisotropic").TEXTURE_MAX_ANISOTROPY_EXT, this.anisotropy);
-        this.state.anisotropy = this.anisotropy;
-      }
-      if (this.image) {
-        if (this.image.width) {
-          this.width = this.image.width;
-          this.height = this.image.height;
-        }
-        if (this.target === this.gl.TEXTURE_CUBE_MAP) {
-          for (let i2 = 0; i2 < 6; i2++) {
-            this.gl.texImage2D(this.gl.TEXTURE_CUBE_MAP_POSITIVE_X + i2, this.level, this.internalFormat, this.format, this.type, this.image[i2]);
-          }
-        } else if (ArrayBuffer.isView(this.image)) {
-          if (this.target === this.gl.TEXTURE_2D) {
-            this.gl.texImage2D(this.target, this.level, this.internalFormat, this.width, this.height, 0, this.format, this.type, this.image);
-          } else if (this.target === this.gl.TEXTURE_2D_ARRAY || this.target === this.gl.TEXTURE_3D) {
-            this.gl.texImage3D(this.target, this.level, this.internalFormat, this.width, this.height, this.length, 0, this.format, this.type, this.image);
-          }
-        } else if (this.image.isCompressedTexture) {
-          for (let level = 0; level < this.image.length; level++) {
-            this.gl.compressedTexImage2D(this.target, level, this.internalFormat, this.image[level].width, this.image[level].height, 0, this.image[level].data);
-          }
-        } else {
-          if (this.target === this.gl.TEXTURE_2D) {
-            this.gl.texImage2D(this.target, this.level, this.internalFormat, this.format, this.type, this.image);
-          } else {
-            this.gl.texImage3D(this.target, this.level, this.internalFormat, this.width, this.height, this.length, 0, this.format, this.type, this.image);
-          }
-        }
-        if (this.generateMipmaps) {
-          if (!this.gl.renderer.isWebgl2 && (!isPowerOf2(this.image.width) || !isPowerOf2(this.image.height))) {
-            this.generateMipmaps = false;
-            this.wrapS = this.wrapT = this.gl.CLAMP_TO_EDGE;
-            this.minFilter = this.gl.LINEAR;
-          } else {
-            this.gl.generateMipmap(this.target);
-          }
-        }
-        this.onUpdate && this.onUpdate();
-      } else {
-        if (this.target === this.gl.TEXTURE_CUBE_MAP) {
-          for (let i2 = 0; i2 < 6; i2++) {
-            this.gl.texImage2D(this.gl.TEXTURE_CUBE_MAP_POSITIVE_X + i2, 0, this.gl.RGBA, 1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, emptyPixel);
-          }
-        } else if (this.width) {
-          if (this.target === this.gl.TEXTURE_2D) {
-            this.gl.texImage2D(this.target, this.level, this.internalFormat, this.width, this.height, 0, this.format, this.type, null);
-          } else {
-            this.gl.texImage3D(this.target, this.level, this.internalFormat, this.width, this.height, this.length, 0, this.format, this.type, null);
-          }
-        } else {
-          this.gl.texImage2D(this.target, 0, this.gl.RGBA, 1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, emptyPixel);
-        }
-      }
-      this.store.image = this.image;
     }
   };
   const NAMES = {
@@ -3262,159 +3098,6 @@ ${addLineNumbers(fragment2)}`);
       super(gl2, attributes);
     }
   };
-  const tmp$1 = /* @__PURE__ */ new Vec3();
-  class Polyline {
-    constructor(gl2, {
-      points,
-      // Array of Vec3s
-      vertex: vertex2 = defaultVertex,
-      fragment: fragment2 = defaultFragment,
-      uniforms = {},
-      attributes = {}
-      // For passing in custom attribs
-    }) {
-      this.gl = gl2;
-      this.points = points;
-      this.count = points.length;
-      this.position = new Float32Array(this.count * 3 * 2);
-      this.prev = new Float32Array(this.count * 3 * 2);
-      this.next = new Float32Array(this.count * 3 * 2);
-      const side = new Float32Array(this.count * 1 * 2);
-      const uv = new Float32Array(this.count * 2 * 2);
-      const index = new Uint16Array((this.count - 1) * 3 * 2);
-      for (let i2 = 0; i2 < this.count; i2++) {
-        side.set([-1, 1], i2 * 2);
-        const v = i2 / (this.count - 1);
-        uv.set([0, v, 1, v], i2 * 4);
-        if (i2 === this.count - 1) continue;
-        const ind = i2 * 2;
-        index.set([ind + 0, ind + 1, ind + 2], (ind + 0) * 3);
-        index.set([ind + 2, ind + 1, ind + 3], (ind + 1) * 3);
-      }
-      const geometry = this.geometry = new Geometry(
-        gl2,
-        Object.assign(attributes, {
-          position: { size: 3, data: this.position },
-          prev: { size: 3, data: this.prev },
-          next: { size: 3, data: this.next },
-          side: { size: 1, data: side },
-          uv: { size: 2, data: uv },
-          index: { size: 1, data: index }
-        })
-      );
-      this.updateGeometry();
-      if (!uniforms.uResolution) this.resolution = uniforms.uResolution = { value: new Vec2() };
-      if (!uniforms.uDPR) this.dpr = uniforms.uDPR = { value: 1 };
-      if (!uniforms.uThickness) this.thickness = uniforms.uThickness = { value: 1 };
-      if (!uniforms.uColor) this.color = uniforms.uColor = { value: new Color$1("#000") };
-      if (!uniforms.uMiter) this.miter = uniforms.uMiter = { value: 1 };
-      this.resize();
-      const program = this.program = new Program(gl2, {
-        vertex: vertex2,
-        fragment: fragment2,
-        uniforms
-      });
-      this.mesh = new Mesh$1(gl2, { geometry, program });
-    }
-    updateGeometry() {
-      this.points.forEach((p2, i2) => {
-        p2.toArray(this.position, i2 * 3 * 2);
-        p2.toArray(this.position, i2 * 3 * 2 + 3);
-        if (!i2) {
-          tmp$1.copy(p2).sub(this.points[i2 + 1]).add(p2);
-          tmp$1.toArray(this.prev, i2 * 3 * 2);
-          tmp$1.toArray(this.prev, i2 * 3 * 2 + 3);
-        } else {
-          p2.toArray(this.next, (i2 - 1) * 3 * 2);
-          p2.toArray(this.next, (i2 - 1) * 3 * 2 + 3);
-        }
-        if (i2 === this.points.length - 1) {
-          tmp$1.copy(p2).sub(this.points[i2 - 1]).add(p2);
-          tmp$1.toArray(this.next, i2 * 3 * 2);
-          tmp$1.toArray(this.next, i2 * 3 * 2 + 3);
-        } else {
-          p2.toArray(this.prev, (i2 + 1) * 3 * 2);
-          p2.toArray(this.prev, (i2 + 1) * 3 * 2 + 3);
-        }
-      });
-      this.geometry.attributes.position.needsUpdate = true;
-      this.geometry.attributes.prev.needsUpdate = true;
-      this.geometry.attributes.next.needsUpdate = true;
-    }
-    // Only need to call if not handling resolution uniforms manually
-    resize() {
-      if (this.resolution) this.resolution.value.set(this.gl.canvas.width, this.gl.canvas.height);
-      if (this.dpr) this.dpr.value = this.gl.renderer.dpr;
-    }
-  }
-  const defaultVertex = (
-    /* glsl */
-    `
-    precision highp float;
-
-    attribute vec3 position;
-    attribute vec3 next;
-    attribute vec3 prev;
-    attribute vec2 uv;
-    attribute float side;
-
-    uniform mat4 modelViewMatrix;
-    uniform mat4 projectionMatrix;
-    uniform vec2 uResolution;
-    uniform float uDPR;
-    uniform float uThickness;
-    uniform float uMiter;
-
-    varying vec2 vUv;
-
-    vec4 getPosition() {
-        mat4 mvp = projectionMatrix * modelViewMatrix;
-        vec4 current = mvp * vec4(position, 1);
-        vec4 nextPos = mvp * vec4(next, 1);
-        vec4 prevPos = mvp * vec4(prev, 1);
-
-        vec2 aspect = vec2(uResolution.x / uResolution.y, 1);    
-        vec2 currentScreen = current.xy / current.w * aspect;
-        vec2 nextScreen = nextPos.xy / nextPos.w * aspect;
-        vec2 prevScreen = prevPos.xy / prevPos.w * aspect;
-    
-        vec2 dir1 = normalize(currentScreen - prevScreen);
-        vec2 dir2 = normalize(nextScreen - currentScreen);
-        vec2 dir = normalize(dir1 + dir2);
-    
-        vec2 normal = vec2(-dir.y, dir.x);
-        normal /= mix(1.0, max(0.3, dot(normal, vec2(-dir1.y, dir1.x))), uMiter);
-        normal /= aspect;
-
-        float pixelWidthRatio = 1.0 / (uResolution.y / uDPR);
-        float pixelWidth = current.w * pixelWidthRatio;
-        normal *= pixelWidth * uThickness;
-        current.xy -= normal * side;
-    
-        return current;
-    }
-
-    void main() {
-        vUv = uv;
-        gl_Position = getPosition();
-    }
-`
-  );
-  const defaultFragment = (
-    /* glsl */
-    `
-    precision highp float;
-
-    uniform vec3 uColor;
-    
-    varying vec2 vUv;
-
-    void main() {
-        gl_FragColor.rgb = uColor;
-        gl_FragColor.a = 1.0;
-    }
-`
-  );
   const VERT$2 = `#version 300 es
 in vec2 position;
 void main() {
@@ -3599,7 +3282,7 @@ void main() {
       parseInt(h2.slice(4, 6), 16) / 255
     ];
   }
-  const vertexShader$6 = `
+  const vertexShader$5 = `
 attribute vec2 uv;
 attribute vec2 position;
 varying vec2 vUv;
@@ -3608,7 +3291,7 @@ void main() {
   gl_Position = vec4(position, 0, 1);
 }
 `;
-  const fragmentShader$6 = `
+  const fragmentShader$5 = `
 precision highp float;
 
 uniform float uTime;
@@ -3776,8 +3459,8 @@ void main() {
       resize();
       const geometry = new Triangle$1(gl2);
       program = new Program(gl2, {
-        vertex: vertexShader$6,
-        fragment: fragmentShader$6,
+        vertex: vertexShader$5,
+        fragment: fragmentShader$5,
         uniforms: {
           uTime: { value: 0 },
           uResolution: { value: [gl2.canvas.width, gl2.canvas.height, gl2.canvas.width / gl2.canvas.height] },
@@ -3834,7 +3517,7 @@ void main() {
     }, [speed, scale2, brightness, color1, color2, noiseFrequency, noiseAmplitude, bandHeight, bandSpread, octaveDecay, layerOffset, colorSpeed, enableMouseInteraction, mouseInfluence]);
     return /* @__PURE__ */ React.createElement("div", { ref: containerRef, className: "soft-aurora-container w-full h-full" });
   }
-  const vertexShader$5 = `
+  const vertexShader$4 = `
 attribute vec2 uv;
 attribute vec2 position;
 
@@ -3845,7 +3528,7 @@ void main() {
   gl_Position = vec4(position, 0, 1);
 }
 `;
-  const fragmentShader$5 = `
+  const fragmentShader$4 = `
 precision highp float;
 
 uniform float uTime;
@@ -3906,8 +3589,8 @@ void main() {
       resize();
       const geometry = new Triangle$1(gl2);
       program = new Program(gl2, {
-        vertex: vertexShader$5,
-        fragment: fragmentShader$5,
+        vertex: vertexShader$4,
+        fragment: fragmentShader$4,
         uniforms: {
           uTime: { value: 0 },
           uColor: { value: new Color$1(...color2) },
@@ -3952,7 +3635,7 @@ void main() {
     }, [color2, speed, amplitude, mouseReact]);
     return /* @__PURE__ */ React.createElement("div", { ref: ctnDom, className: "w-full h-full", ...rest });
   }
-  const vertexShader$4 = `
+  const vertexShader$3 = `
 attribute vec2 position;
 attribute vec2 uv;
 varying vec2 vUv;
@@ -3961,7 +3644,7 @@ void main() {
   gl_Position = vec4(position, 0.0, 1.0);
 }
 `;
-  const fragmentShader$4 = `
+  const fragmentShader$3 = `
 precision highp float;
 
 uniform float iTime;
@@ -4087,8 +3770,8 @@ void main() {
       container.appendChild(gl2.canvas);
       const geometry = new Triangle$1(gl2);
       const program = new Program(gl2, {
-        vertex: vertexShader$4,
-        fragment: fragmentShader$4,
+        vertex: vertexShader$3,
+        fragment: fragmentShader$3,
         uniforms: {
           iTime: { value: 0 },
           iResolution: {
@@ -4366,224 +4049,6 @@ void main() {
       pixelRatio
     ]);
     return /* @__PURE__ */ React$1.createElement("div", { ref: containerRef, className: `particles-container relative w-full h-full ${className}` });
-  };
-  const Ribbons = ({
-    colors = ["#ff9346", "#7cff67", "#ffee51", "#5227FF"],
-    baseSpring = 0.03,
-    baseFriction = 0.9,
-    baseThickness = 30,
-    offsetFactor = 0.05,
-    maxAge = 500,
-    pointCount = 50,
-    speedMultiplier = 0.6,
-    enableFade = false,
-    enableShaderEffect = false,
-    effectAmplitude = 2,
-    backgroundColor = [0, 0, 0, 0]
-  }) => {
-    const containerRef = React$1.useRef(null);
-    React$1.useEffect(() => {
-      const container = containerRef.current;
-      if (!container) return;
-      const renderer = new Renderer({ dpr: window.devicePixelRatio || 2, alpha: true });
-      const gl2 = renderer.gl;
-      if (Array.isArray(backgroundColor) && backgroundColor.length === 4) {
-        gl2.clearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]);
-      } else {
-        gl2.clearColor(0, 0, 0, 0);
-      }
-      gl2.canvas.style.position = "absolute";
-      gl2.canvas.style.top = "0";
-      gl2.canvas.style.left = "0";
-      gl2.canvas.style.width = "100%";
-      gl2.canvas.style.height = "100%";
-      container.appendChild(gl2.canvas);
-      const scene = new Transform();
-      const lines = [];
-      const vertex2 = `
-      precision highp float;
-      
-      attribute vec3 position;
-      attribute vec3 next;
-      attribute vec3 prev;
-      attribute vec2 uv;
-      attribute float side;
-      
-      uniform vec2 uResolution;
-      uniform float uDPR;
-      uniform float uThickness;
-      uniform float uTime;
-      uniform float uEnableShaderEffect;
-      uniform float uEffectAmplitude;
-      
-      varying vec2 vUV;
-      
-      vec4 getPosition() {
-          vec4 current = vec4(position, 1.0);
-          vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
-          vec2 nextScreen = next.xy * aspect;
-          vec2 prevScreen = prev.xy * aspect;
-          vec2 tangent = normalize(nextScreen - prevScreen);
-          vec2 normal = vec2(-tangent.y, tangent.x);
-          normal /= aspect;
-          normal *= mix(1.0, 0.1, pow(abs(uv.y - 0.5) * 2.0, 2.0));
-          float dist = length(nextScreen - prevScreen);
-          normal *= smoothstep(0.0, 0.02, dist);
-          float pixelWidthRatio = 1.0 / (uResolution.y / uDPR);
-          float pixelWidth = current.w * pixelWidthRatio;
-          normal *= pixelWidth * uThickness;
-          current.xy -= normal * side;
-          if(uEnableShaderEffect > 0.5) {
-            current.xy += normal * sin(uTime + current.x * 10.0) * uEffectAmplitude;
-          }
-          return current;
-      }
-      
-      void main() {
-          vUV = uv;
-          gl_Position = getPosition();
-      }
-    `;
-      const fragment2 = `
-      precision highp float;
-      uniform vec3 uColor;
-      uniform float uOpacity;
-      uniform float uEnableFade;
-      varying vec2 vUV;
-      void main() {
-          float fadeFactor = 1.0;
-          if(uEnableFade > 0.5) {
-              fadeFactor = 1.0 - smoothstep(0.0, 1.0, vUV.y);
-          }
-          gl_FragColor = vec4(uColor, uOpacity * fadeFactor);
-      }
-    `;
-      function resize() {
-        if (!container) return;
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-        renderer.setSize(width, height);
-        lines.forEach((line) => line.polyline.resize());
-      }
-      window.addEventListener("resize", resize);
-      const center = (colors.length - 1) / 2;
-      colors.forEach((color2, index) => {
-        const spring = baseSpring + (Math.random() - 0.5) * 0.05;
-        const friction = baseFriction + (Math.random() - 0.5) * 0.05;
-        const thickness = baseThickness + (Math.random() - 0.5) * 3;
-        const mouseOffset = new Vec3(
-          (index - center) * offsetFactor + (Math.random() - 0.5) * 0.01,
-          (Math.random() - 0.5) * 0.1,
-          0
-        );
-        const line = {
-          spring,
-          friction,
-          mouseVelocity: new Vec3(),
-          mouseOffset,
-          points: [],
-          polyline: {}
-        };
-        const count = pointCount;
-        const points = [];
-        for (let i2 = 0; i2 < count; i2++) {
-          points.push(new Vec3());
-        }
-        line.points = points;
-        line.polyline = new Polyline(gl2, {
-          points,
-          vertex: vertex2,
-          fragment: fragment2,
-          uniforms: {
-            uColor: { value: new Color$1(color2) },
-            uThickness: { value: thickness },
-            uOpacity: { value: 1 },
-            uTime: { value: 0 },
-            uEnableShaderEffect: { value: enableShaderEffect ? 1 : 0 },
-            uEffectAmplitude: { value: effectAmplitude },
-            uEnableFade: { value: enableFade ? 1 : 0 }
-          }
-        });
-        line.polyline.mesh.setParent(scene);
-        lines.push(line);
-      });
-      resize();
-      const mouse = new Vec3();
-      function updateMouse(e2) {
-        let x2, y;
-        if (!container) return;
-        const rect = container.getBoundingClientRect();
-        if ("changedTouches" in e2 && e2.changedTouches.length) {
-          x2 = e2.changedTouches[0].clientX - rect.left;
-          y = e2.changedTouches[0].clientY - rect.top;
-        } else if (e2 instanceof MouseEvent) {
-          x2 = e2.clientX - rect.left;
-          y = e2.clientY - rect.top;
-        } else {
-          x2 = 0;
-          y = 0;
-        }
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-        mouse.set(x2 / width * 2 - 1, y / height * -2 + 1, 0);
-      }
-      container.addEventListener("mousemove", updateMouse);
-      container.addEventListener("touchstart", updateMouse);
-      container.addEventListener("touchmove", updateMouse);
-      const tmp2 = new Vec3();
-      let frameId;
-      let lastTime = performance.now();
-      function update() {
-        frameId = requestAnimationFrame(update);
-        const currentTime = performance.now();
-        const dt2 = currentTime - lastTime;
-        lastTime = currentTime;
-        lines.forEach((line) => {
-          tmp2.copy(mouse).add(line.mouseOffset).sub(line.points[0]).multiply(line.spring);
-          line.mouseVelocity.add(tmp2).multiply(line.friction);
-          line.points[0].add(line.mouseVelocity);
-          for (let i2 = 1; i2 < line.points.length; i2++) {
-            if (isFinite(maxAge) && maxAge > 0) {
-              const segmentDelay = maxAge / (line.points.length - 1);
-              const alpha = Math.min(1, dt2 * speedMultiplier / segmentDelay);
-              line.points[i2].lerp(line.points[i2 - 1], alpha);
-            } else {
-              line.points[i2].lerp(line.points[i2 - 1], 0.9);
-            }
-          }
-          if (line.polyline.mesh.program.uniforms.uTime) {
-            line.polyline.mesh.program.uniforms.uTime.value = currentTime * 1e-3;
-          }
-          line.polyline.updateGeometry();
-        });
-        renderer.render({ scene });
-      }
-      update();
-      return () => {
-        window.removeEventListener("resize", resize);
-        container.removeEventListener("mousemove", updateMouse);
-        container.removeEventListener("touchstart", updateMouse);
-        container.removeEventListener("touchmove", updateMouse);
-        cancelAnimationFrame(frameId);
-        if (gl2.canvas && gl2.canvas.parentNode === container) {
-          container.removeChild(gl2.canvas);
-        }
-      };
-    }, [
-      colors,
-      baseSpring,
-      baseFriction,
-      baseThickness,
-      offsetFactor,
-      maxAge,
-      pointCount,
-      speedMultiplier,
-      enableFade,
-      enableShaderEffect,
-      effectAmplitude,
-      backgroundColor
-    ]);
-    return /* @__PURE__ */ React$1.createElement("div", { ref: containerRef, className: "ribbons-container relative w-full h-full" });
   };
   function Orb({
     hue = 0,
@@ -56092,415 +55557,6 @@ void main() {
     ]);
     return /* @__PURE__ */ React$1.createElement("div", { className: "prism-container w-full h-full relative", ref: containerRef });
   };
-  const vertexShader$3 = `#version 300 es
-in vec2 position;
-in vec2 uv;
-out vec2 vUv;
-void main() {
-    vUv = uv;
-    gl_Position = vec4(position, 0.0, 1.0);
-}
-`;
-  const fragmentShader$3 = `#version 300 es
-precision highp float;
-precision highp int;
-
-out vec4 fragColor;
-
-uniform vec2  uResolution;
-uniform float uTime;
-
-uniform float uIntensity;
-uniform float uSpeed;
-uniform int   uAnimType;
-uniform vec2  uMouse;
-uniform int   uColorCount;
-uniform float uDistort;
-uniform vec2  uOffset;
-uniform sampler2D uGradient;
-uniform float uNoiseAmount;
-uniform int   uRayCount;
-
-float hash21(vec2 p){
-    p = floor(p);
-    float f = 52.9829189 * fract(dot(p, vec2(0.065, 0.005)));
-    return fract(f);
-}
-
-mat2 rot30(){ return mat2(0.8, -0.5, 0.5, 0.8); }
-
-float layeredNoise(vec2 fragPx){
-    vec2 p = mod(fragPx + vec2(uTime * 30.0, -uTime * 21.0), 1024.0);
-    vec2 q = rot30() * p;
-    float n = 0.0;
-    n += 0.40 * hash21(q);
-    n += 0.25 * hash21(q * 2.0 + 17.0);
-    n += 0.20 * hash21(q * 4.0 + 47.0);
-    n += 0.10 * hash21(q * 8.0 + 113.0);
-    n += 0.05 * hash21(q * 16.0 + 191.0);
-    return n;
-}
-
-vec3 rayDir(vec2 frag, vec2 res, vec2 offset, float dist){
-    float focal = res.y * max(dist, 1e-3);
-    return normalize(vec3(2.0 * (frag - offset) - res, focal));
-}
-
-float edgeFade(vec2 frag, vec2 res, vec2 offset){
-    vec2 toC = frag - 0.5 * res - offset;
-    float r = length(toC) / (0.5 * min(res.x, res.y));
-    float x = clamp(r, 0.0, 1.0);
-    float q = x * x * x * (x * (x * 6.0 - 15.0) + 10.0);
-    float s = q * 0.5;
-    s = pow(s, 1.5);
-    float tail = 1.0 - pow(1.0 - s, 2.0);
-    s = mix(s, tail, 0.2);
-    float dn = (layeredNoise(frag * 0.15) - 0.5) * 0.0015 * s;
-    return clamp(s + dn, 0.0, 1.0);
-}
-
-mat3 rotX(float a){ float c = cos(a), s = sin(a); return mat3(1.0,0.0,0.0, 0.0,c,-s, 0.0,s,c); }
-mat3 rotY(float a){ float c = cos(a), s = sin(a); return mat3(c,0.0,s, 0.0,1.0,0.0, -s,0.0,c); }
-mat3 rotZ(float a){ float c = cos(a), s = sin(a); return mat3(c,-s,0.0, s,c,0.0, 0.0,0.0,1.0); }
-
-vec3 sampleGradient(float t){
-    t = clamp(t, 0.0, 1.0);
-    return texture(uGradient, vec2(t, 0.5)).rgb;
-}
-
-vec2 rot2(vec2 v, float a){
-    float s = sin(a), c = cos(a);
-    return mat2(c, -s, s, c) * v;
-}
-
-float bendAngle(vec3 q, float t){
-    float a = 0.8 * sin(q.x * 0.55 + t * 0.6)
-            + 0.7 * sin(q.y * 0.50 - t * 0.5)
-            + 0.6 * sin(q.z * 0.60 + t * 0.7);
-    return a;
-}
-
-void main(){
-    vec2 frag = gl_FragCoord.xy;
-    float t = uTime * uSpeed;
-    float jitterAmp = 0.1 * clamp(uNoiseAmount, 0.0, 1.0);
-    vec3 dir = rayDir(frag, uResolution, uOffset, 1.0);
-    float marchT = 0.0;
-    vec3 col = vec3(0.0);
-    float n = layeredNoise(frag);
-    vec4 c = cos(t * 0.2 + vec4(0.0, 33.0, 11.0, 0.0));
-    mat2 M2 = mat2(c.x, c.y, c.z, c.w);
-    float amp = clamp(uDistort, 0.0, 50.0) * 0.15;
-
-    mat3 rot3dMat = mat3(1.0);
-    if(uAnimType == 1){
-      vec3 ang = vec3(t * 0.31, t * 0.21, t * 0.17);
-      rot3dMat = rotZ(ang.z) * rotY(ang.y) * rotX(ang.x);
-    }
-    mat3 hoverMat = mat3(1.0);
-    if(uAnimType == 2){
-      vec2 m = uMouse * 2.0 - 1.0;
-      vec3 ang = vec3(m.y * 0.6, m.x * 0.6, 0.0);
-      hoverMat = rotY(ang.y) * rotX(ang.x);
-    }
-
-    for (int i = 0; i < 44; ++i) {
-        vec3 P = marchT * dir;
-        P.z -= 2.0;
-        float rad = length(P);
-        vec3 Pl = P * (10.0 / max(rad, 1e-6));
-
-        if(uAnimType == 0){
-            Pl.xz *= M2;
-        } else if(uAnimType == 1){
-      Pl = rot3dMat * Pl;
-        } else {
-      Pl = hoverMat * Pl;
-        }
-
-        float stepLen = min(rad - 0.3, n * jitterAmp) + 0.1;
-
-        float grow = smoothstep(0.35, 3.0, marchT);
-        float a1 = amp * grow * bendAngle(Pl * 0.6, t);
-        float a2 = 0.5 * amp * grow * bendAngle(Pl.zyx * 0.5 + 3.1, t * 0.9);
-        vec3 Pb = Pl;
-        Pb.xz = rot2(Pb.xz, a1);
-        Pb.xy = rot2(Pb.xy, a2);
-
-        float rayPattern = smoothstep(
-            0.5, 0.7,
-            sin(Pb.x + cos(Pb.y) * cos(Pb.z)) *
-            sin(Pb.z + sin(Pb.y) * cos(Pb.x + t))
-        );
-
-        if (uRayCount > 0) {
-            float ang = atan(Pb.y, Pb.x);
-            float comb = 0.5 + 0.5 * cos(float(uRayCount) * ang);
-            comb = pow(comb, 3.0);
-            rayPattern *= smoothstep(0.15, 0.95, comb);
-        }
-
-        vec3 spectralDefault = 1.0 + vec3(
-            cos(marchT * 3.0 + 0.0),
-            cos(marchT * 3.0 + 1.0),
-            cos(marchT * 3.0 + 2.0)
-        );
-
-        float saw = fract(marchT * 0.25);
-        float tRay = saw * saw * (3.0 - 2.0 * saw);
-        vec3 userGradient = 2.0 * sampleGradient(tRay);
-        vec3 spectral = (uColorCount > 0) ? userGradient : spectralDefault;
-        vec3 base = (0.05 / (0.4 + stepLen))
-                  * smoothstep(5.0, 0.0, rad)
-                  * spectral;
-
-        col += base * rayPattern;
-        marchT += stepLen;
-    }
-
-    col *= edgeFade(frag, uResolution, uOffset);
-    col *= uIntensity;
-
-    fragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
-}`;
-  const hexToRgb01 = (hex) => {
-    let h2 = hex.trim();
-    if (h2.startsWith("#")) h2 = h2.slice(1);
-    if (h2.length === 3) {
-      const r22 = h2[0], g22 = h2[1], b22 = h2[2];
-      h2 = r22 + r22 + g22 + g22 + b22 + b22;
-    }
-    const intVal = parseInt(h2, 16);
-    if (isNaN(intVal) || h2.length !== 6 && h2.length !== 8) return [1, 1, 1];
-    const r2 = (intVal >> 16 & 255) / 255;
-    const g2 = (intVal >> 8 & 255) / 255;
-    const b2 = (intVal & 255) / 255;
-    return [r2, g2, b2];
-  };
-  const toPx = (v) => {
-    if (v == null) return 0;
-    if (typeof v === "number") return v;
-    const s2 = String(v).trim();
-    const num = parseFloat(s2.replace("px", ""));
-    return isNaN(num) ? 0 : num;
-  };
-  const PrismaticBurst = ({
-    intensity = 2,
-    speed = 0.5,
-    animationType = "rotate3d",
-    colors,
-    distort = 0,
-    paused = false,
-    offset = { x: 0, y: 0 },
-    hoverDampness = 0,
-    rayCount,
-    mixBlendMode = "lighten"
-  }) => {
-    const containerRef = React$1.useRef(null);
-    const programRef = React$1.useRef(null);
-    const rendererRef = React$1.useRef(null);
-    const mouseTargetRef = React$1.useRef([0.5, 0.5]);
-    const mouseSmoothRef = React$1.useRef([0.5, 0.5]);
-    const pausedRef = React$1.useRef(paused);
-    const gradTexRef = React$1.useRef(null);
-    const hoverDampRef = React$1.useRef(hoverDampness);
-    const isVisibleRef = React$1.useRef(true);
-    const meshRef = React$1.useRef(null);
-    const triRef = React$1.useRef(null);
-    React$1.useEffect(() => {
-      pausedRef.current = paused;
-    }, [paused]);
-    React$1.useEffect(() => {
-      hoverDampRef.current = hoverDampness;
-    }, [hoverDampness]);
-    React$1.useEffect(() => {
-      const container = containerRef.current;
-      if (!container) return;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const renderer = new Renderer({ dpr, alpha: false, antialias: false });
-      rendererRef.current = renderer;
-      const gl2 = renderer.gl;
-      gl2.canvas.style.position = "absolute";
-      gl2.canvas.style.inset = "0";
-      gl2.canvas.style.width = "100%";
-      gl2.canvas.style.height = "100%";
-      gl2.canvas.style.mixBlendMode = mixBlendMode && mixBlendMode !== "none" ? mixBlendMode : "";
-      container.appendChild(gl2.canvas);
-      const white = new Uint8Array([255, 255, 255, 255]);
-      const gradientTex = new Texture$1(gl2, {
-        image: white,
-        width: 1,
-        height: 1,
-        generateMipmaps: false,
-        flipY: false
-      });
-      gradientTex.minFilter = gl2.LINEAR;
-      gradientTex.magFilter = gl2.LINEAR;
-      gradientTex.wrapS = gl2.CLAMP_TO_EDGE;
-      gradientTex.wrapT = gl2.CLAMP_TO_EDGE;
-      gradTexRef.current = gradientTex;
-      const program = new Program(gl2, {
-        vertex: vertexShader$3,
-        fragment: fragmentShader$3,
-        uniforms: {
-          uResolution: { value: [1, 1] },
-          uTime: { value: 0 },
-          uIntensity: { value: 1 },
-          uSpeed: { value: 1 },
-          uAnimType: { value: 0 },
-          uMouse: { value: [0.5, 0.5] },
-          uColorCount: { value: 0 },
-          uDistort: { value: 0 },
-          uOffset: { value: [0, 0] },
-          uGradient: { value: gradientTex },
-          uNoiseAmount: { value: 0.8 },
-          uRayCount: { value: 0 }
-        }
-      });
-      programRef.current = program;
-      const triangle = new Triangle$1(gl2);
-      const mesh = new Mesh$1(gl2, { geometry: triangle, program });
-      triRef.current = triangle;
-      meshRef.current = mesh;
-      const resize = () => {
-        const w2 = container.clientWidth || 1;
-        const h2 = container.clientHeight || 1;
-        renderer.setSize(w2, h2);
-        program.uniforms.uResolution.value = [gl2.drawingBufferWidth, gl2.drawingBufferHeight];
-      };
-      let ro2 = null;
-      if ("ResizeObserver" in window) {
-        ro2 = new ResizeObserver(resize);
-        ro2.observe(container);
-      } else {
-        window.addEventListener("resize", resize);
-      }
-      resize();
-      const onPointer = (e2) => {
-        const rect = container.getBoundingClientRect();
-        const x2 = (e2.clientX - rect.left) / Math.max(rect.width, 1);
-        const y = (e2.clientY - rect.top) / Math.max(rect.height, 1);
-        mouseTargetRef.current = [Math.min(Math.max(x2, 0), 1), Math.min(Math.max(y, 0), 1)];
-      };
-      container.addEventListener("pointermove", onPointer, { passive: true });
-      let io2 = null;
-      if ("IntersectionObserver" in window) {
-        io2 = new IntersectionObserver(
-          (entries) => {
-            if (entries[0]) isVisibleRef.current = entries[0].isIntersecting;
-          },
-          { root: null, threshold: 0.01 }
-        );
-        io2.observe(container);
-      }
-      const onVis = () => {
-      };
-      document.addEventListener("visibilitychange", onVis);
-      let raf = 0;
-      let last = performance.now();
-      let accumTime = 0;
-      const update = (now2) => {
-        const dt2 = Math.max(0, now2 - last) * 1e-3;
-        last = now2;
-        const visible = isVisibleRef.current && !document.hidden;
-        if (!pausedRef.current) accumTime += dt2;
-        if (!visible) {
-          raf = requestAnimationFrame(update);
-          return;
-        }
-        const tau = 0.02 + Math.max(0, Math.min(1, hoverDampRef.current)) * 0.5;
-        const alpha = 1 - Math.exp(-dt2 / tau);
-        const tgt = mouseTargetRef.current;
-        const sm = mouseSmoothRef.current;
-        sm[0] += (tgt[0] - sm[0]) * alpha;
-        sm[1] += (tgt[1] - sm[1]) * alpha;
-        program.uniforms.uMouse.value = sm;
-        program.uniforms.uTime.value = accumTime;
-        renderer.render({ scene: meshRef.current });
-        raf = requestAnimationFrame(update);
-      };
-      raf = requestAnimationFrame(update);
-      return () => {
-        var _a2, _b;
-        cancelAnimationFrame(raf);
-        container.removeEventListener("pointermove", onPointer);
-        ro2 == null ? void 0 : ro2.disconnect();
-        if (!ro2) window.removeEventListener("resize", resize);
-        io2 == null ? void 0 : io2.disconnect();
-        document.removeEventListener("visibilitychange", onVis);
-        try {
-          container.removeChild(gl2.canvas);
-        } catch (e2) {
-        }
-        meshRef.current = null;
-        triRef.current = null;
-        programRef.current = null;
-        try {
-          const glCtx = (_a2 = rendererRef.current) == null ? void 0 : _a2.gl;
-          if (glCtx && ((_b = gradTexRef.current) == null ? void 0 : _b.texture)) glCtx.deleteTexture(gradTexRef.current.texture);
-        } catch (e2) {
-        }
-        rendererRef.current = null;
-        gradTexRef.current = null;
-      };
-    }, []);
-    React$1.useEffect(() => {
-      var _a2, _b;
-      const canvas = (_b = (_a2 = rendererRef.current) == null ? void 0 : _a2.gl) == null ? void 0 : _b.canvas;
-      if (canvas) {
-        canvas.style.mixBlendMode = mixBlendMode && mixBlendMode !== "none" ? mixBlendMode : "";
-      }
-    }, [mixBlendMode]);
-    React$1.useEffect(() => {
-      const program = programRef.current;
-      const renderer = rendererRef.current;
-      const gradTex = gradTexRef.current;
-      if (!program || !renderer || !gradTex) return;
-      program.uniforms.uIntensity.value = intensity ?? 1;
-      program.uniforms.uSpeed.value = speed ?? 1;
-      const animTypeMap = {
-        rotate: 0,
-        rotate3d: 1,
-        hover: 2
-      };
-      program.uniforms.uAnimType.value = animTypeMap[animationType ?? "rotate"];
-      program.uniforms.uDistort.value = typeof distort === "number" ? distort : 0;
-      const ox = toPx(offset == null ? void 0 : offset.x);
-      const oy = toPx(offset == null ? void 0 : offset.y);
-      program.uniforms.uOffset.value = [ox, oy];
-      program.uniforms.uRayCount.value = Math.max(0, Math.floor(rayCount ?? 0));
-      let count = 0;
-      if (Array.isArray(colors) && colors.length > 0) {
-        const gl2 = renderer.gl;
-        const capped = colors.slice(0, 64);
-        count = capped.length;
-        const data = new Uint8Array(count * 4);
-        for (let i2 = 0; i2 < count; i2++) {
-          const [r2, g2, b2] = hexToRgb01(capped[i2]);
-          data[i2 * 4 + 0] = Math.round(r2 * 255);
-          data[i2 * 4 + 1] = Math.round(g2 * 255);
-          data[i2 * 4 + 2] = Math.round(b2 * 255);
-          data[i2 * 4 + 3] = 255;
-        }
-        gradTex.image = data;
-        gradTex.width = count;
-        gradTex.height = 1;
-        gradTex.minFilter = gl2.LINEAR;
-        gradTex.magFilter = gl2.LINEAR;
-        gradTex.wrapS = gl2.CLAMP_TO_EDGE;
-        gradTex.wrapT = gl2.CLAMP_TO_EDGE;
-        gradTex.flipY = false;
-        gradTex.generateMipmaps = false;
-        gradTex.format = gl2.RGBA;
-        gradTex.type = gl2.UNSIGNED_BYTE;
-        gradTex.needsUpdate = true;
-      } else {
-        count = 0;
-      }
-      program.uniforms.uColorCount.value = count;
-    }, [intensity, speed, animationType, colors, distort, offset, rayCount]);
-    return /* @__PURE__ */ React$1.createElement("div", { className: "prismatic-burst-container w-full h-full relative overflow-hidden", ref: containerRef });
-  };
   const vertexShader$2 = `
 attribute vec2 uv;
 attribute vec2 position;
@@ -60073,8 +59129,6 @@ void main() {
     Plasma,
     PlasmaWave,
     Prism,
-    PrismaticBurst,
-    Ribbons,
     SoftAurora,
     SplashCursor,
     Threads

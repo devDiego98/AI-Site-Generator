@@ -501,7 +501,6 @@ Tune ONLY color-related props per the ReactBits catalog; never pass speed, densi
 | \`FloatingLines\` | 1, 3, 7 | gentle waves |
 | \`Grainient\` | 3, 4 (light) | mesh-like blobs |
 | \`Threads\` | 2, 6 | fine line texture |
-| \`Ribbons\` | 2, 5 | playful motion |
 | \`Iridescence\` | 4 (light), 7 | subtle color shift |
 | \`Particles\` | 3 (playful) | light particles |
 | \`SoftAurora\` | 3, 4 | soft glow |

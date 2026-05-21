@@ -3,6 +3,7 @@ import { Button } from '@/atoms/Button'
 import { Icon } from '@/atoms/Icon'
 import { Text } from '@/atoms/Text'
 import type { Project } from '@/types/project'
+import { countProjectVersions } from '@/utils/projectHelpers'
 import styles from './ProjectsSidebar.module.css'
 
 function formatDate(iso: string): string {
@@ -80,6 +81,8 @@ export function ProjectsSidebar({
             {projects.map((project) => {
               const isActive =
                 project.id === activeProjectId && !isCreatingNew
+              const versionCount = countProjectVersions(project)
+              const iterationCount = project.iterations.length
 
               return (
                 <li key={project.id} className={styles.projectCard}>
@@ -97,10 +100,9 @@ export function ProjectsSidebar({
                     </Text>
                     <div className={styles.projectFooter}>
                       <Badge>
-                        {project.versions.length}{' '}
-                        {project.versions.length === 1
-                          ? 'version'
-                          : 'versions'}
+                        {iterationCount > 1
+                          ? `${iterationCount} iterations`
+                          : `${versionCount} ${versionCount === 1 ? 'version' : 'versions'}`}
                       </Badge>
                       <Text variant="caption" color="muted">
                         {formatDate(project.updatedAt)}

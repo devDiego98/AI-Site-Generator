@@ -1,6 +1,7 @@
 import {
   REACTBITS_BACKGROUND_NAMES,
   REACTBITS_BACKGROUND_USAGE,
+  REACTBITS_DISABLED_BACKGROUNDS,
   type ReactBitsBackgroundName,
 } from '../reactbits-background-usage';
 
@@ -189,4 +190,26 @@ export function applyRandomBackgroundSwap(
   const current = detectCurrentBackground(code);
   const next = pickRandomBackground(options?.exclude ?? current);
   return replaceBackground(code, next);
+}
+
+const DISABLED_BACKGROUND_REPLACEMENTS: Record<
+  (typeof REACTBITS_DISABLED_BACKGROUNDS)[number],
+  ReactBitsBackgroundName
+> = {
+  PrismaticBurst: 'LightRays',
+  Ribbons: 'Particles',
+};
+
+/** Replaces removed ReactBits backgrounds if the model still emits them. */
+export function stripDisabledReactBitsBackgrounds(code: string): string {
+  let updated = code;
+  for (const disabled of REACTBITS_DISABLED_BACKGROUNDS) {
+    if (buildComponentTagRegex(disabled).test(updated)) {
+      updated = replaceBackground(
+        updated,
+        DISABLED_BACKGROUND_REPLACEMENTS[disabled],
+      ).code;
+    }
+  }
+  return updated;
 }

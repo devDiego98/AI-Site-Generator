@@ -7,6 +7,7 @@ import type {
 } from '@babel/types';
 import { formatDesignEvaluationError } from './evaluate-ui-design';
 import { hasMergedJsxTagAttributes } from './jsx-tag-utils';
+import { hasOrphanIsInView } from './fix-orphan-is-in-view';
 import { hasOrphanRefAttribute } from './fix-orphan-ref';
 import {
   isTrivialJsx,
@@ -296,6 +297,10 @@ function checkStructuralPatterns(code: string): string | null {
     return 'ref={ref} is used without const ref = useRef(null) — define ref with useRef before using it, or remove ref={ref}';
   }
 
+  if (hasOrphanIsInView(code)) {
+    return 'isInView is used without const isInView = useInView(ref, { once: true }) — define ref with useRef and isInView with useInView, or remove isInView from animate props';
+  }
+
   return null;
 }
 
@@ -352,7 +357,15 @@ export function validateUiCode(code: string): ValidateUiCodeResult {
   return { valid: true };
 }
 
-export function prepareUiCode(raw: string): {
+export interface PrepareUiCodeOptions {
+  /** Skip design re-enforcement so targeted styling edits (e.g. text-green-500) survive. */
+  forModification?: boolean;
+}
+
+export function prepareUiCode(
+  raw: string,
+  options?: PrepareUiCodeOptions,
+): {
   code: string;
   validation: ValidateUiCodeResult;
 } {
@@ -362,6 +375,10 @@ export function prepareUiCode(raw: string): {
 
   if (!syntaxValidation.valid) {
     return { code: normalized, validation: syntaxValidation };
+  }
+
+  if (options?.forModification) {
+    return { code: normalized, validation: { valid: true } };
   }
 
   const { code: designCode, evaluation } = runDesignQualityPipeline(normalized);

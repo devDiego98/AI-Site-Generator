@@ -3,6 +3,7 @@ import { Badge } from '@/atoms/Badge'
 import { Icon } from '@/atoms/Icon'
 import { Text } from '@/atoms/Text'
 import type { Project, ProjectVersion, VersionType } from '@/types/project'
+import { countProjectVersions } from '@/utils/projectHelpers'
 import styles from './HistoryPanel.module.css'
 
 export interface HistoryPanelProps {
@@ -136,6 +137,7 @@ export function HistoryPanel({
           {projects.map((project) => {
             const isActiveProject = project.id === activeProjectId
             const isExpanded = effectiveExpandedIds.has(project.id)
+            const versionCount = countProjectVersions(project)
 
             return (
               <li
@@ -172,10 +174,9 @@ export function HistoryPanel({
                       </Text>
                       <div className={styles.threadFooter}>
                         <Badge>
-                          {project.versions.length}{' '}
-                          {project.versions.length === 1
-                            ? 'version'
-                            : 'versions'}
+                          {project.iterations.length > 1
+                            ? `${project.iterations.length} iterations`
+                            : `${versionCount} ${versionCount === 1 ? 'version' : 'versions'}`}
                         </Badge>
                         <Text variant="caption" color="muted">
                           {formatDate(project.updatedAt)}
@@ -187,18 +188,32 @@ export function HistoryPanel({
 
                 {isExpanded ? (
                   <div className={styles.versions}>
-                    {project.versions.map((version, index) => (
-                      <VersionItem
-                        key={version.id}
-                        version={version}
-                        index={index}
-                        isActive={
-                          isActiveProject && version.id === activeVersionId
-                        }
-                        onRevert={() =>
-                          onRevertToVersion(project.id, version.id)
-                        }
-                      />
+                    {project.iterations.map((iteration, iterationIndex) => (
+                      <div key={iteration.id}>
+                        {project.iterations.length > 1 ? (
+                          <Text
+                            variant="caption"
+                            color="muted"
+                            className={styles.iterationLabel}
+                          >
+                            Iteration {iterationIndex + 1}
+                          </Text>
+                        ) : null}
+                        {iteration.versions.map((version, index) => (
+                          <VersionItem
+                            key={version.id}
+                            version={version}
+                            index={index}
+                            isActive={
+                              isActiveProject &&
+                              version.id === activeVersionId
+                            }
+                            onRevert={() =>
+                              onRevertToVersion(project.id, version.id)
+                            }
+                          />
+                        ))}
+                      </div>
                     ))}
                   </div>
                 ) : null}

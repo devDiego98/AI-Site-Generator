@@ -8,10 +8,17 @@ export interface ProjectVersion {
   type: VersionType
 }
 
+/** One full regenerate-from-initial-prompt branch with its own modification history. */
+export interface ProjectIteration {
+  id: string
+  createdAt: string
+  versions: ProjectVersion[]
+}
+
 export interface Project {
   id: string
   initialPrompt: string
   createdAt: string
   updatedAt: string
-  versions: ProjectVersion[]
+  iterations: ProjectIteration[]
 }

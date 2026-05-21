@@ -444,7 +444,7 @@ export function buildGenerationProfile(
     `Layout archetype: ${layoutArchetype} — follow navbar rules (pill nav ONLY for archetype 4).`,
     `Visual mode: ${visualMode} — ${
       visualMode === 'light'
-        ? 'bg-[#f5f5f2]; SoftAurora/FloatingLines/Grainient/Threads/DotGrid/Iridescence/Ribbons; transparent sections; glass Cards shadow-none'
+        ? 'bg-[#f5f5f2]; SoftAurora/FloatingLines/Grainient/Threads/DotGrid/Iridescence/LightPillar; transparent sections; glass Cards shadow-none'
         : 'bg-[#0d0d0d]; Aurora/LiquidEther/LightRays/Hyperspeed/Galaxy/Particles/GridScan/DarkVeil; transparent sections; glass Cards shadow-none'
     }`,
     `Hero: ${heroStyle}`,
@@ -460,7 +460,7 @@ export function buildGenerationProfile(
 
   if (visualMode === 'light') {
     layoutNotes.push(
-      'Prefer SoftAurora, FloatingLines, Grainient, LightRays, Ribbons, or subtle DotGrid on light shells.',
+      'Prefer SoftAurora, FloatingLines, Grainient, LightPillar, or subtle DotGrid on light shells.',
     );
   } else {
     layoutNotes.push(
